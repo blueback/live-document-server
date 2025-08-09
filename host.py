@@ -1,8 +1,8 @@
-# Modeline {{{
+# Modeline {
 #	 vi: foldmethod=marker foldlevel=0 filetype=python
-# }}}
+# }
 
-# imports {{{
+# imports {
 from flask import request, redirect, url_for, session
 from flask import Flask, send_file, Response
 from flask import render_template
@@ -19,24 +19,24 @@ from urllib.parse import quote # For URL encoding
 from urllib.parse import unquote # For URL decoding
 import random
 import pandas as pd
-# }}}
+# }
 
-# App initialization{{{
+# App initialization{
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Change this to a secure key
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-# }}}
+# }
 
-# Admin credentials{{{
+# Admin credentials{
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "password123"
-# }}}
+# }
 
-# Define the server's host and port{{{
+# Define the server's host and port{
 HOST = "0.0.0.0"
 PORT = 5000
-# }}}
+# }
 
 @app.after_request
 def add_header(response):
@@ -49,8 +49,8 @@ def add_header(response):
     return response
 
 @app.route("/", methods=["GET", "POST"])
-def index():# {{{
-    if request.method == "POST":# {{{
+def index():# {
+    if request.method == "POST":# {
         #username = request.form["username"]
         password = request.form["password"]
 
@@ -61,25 +61,31 @@ def index():# {{{
         else:
             return render_template("index.html", error="Invalid credentials")
 
-    return render_template("index.html")# }}}}}}
+    return render_template("index.html")# }}
 
 @app.route("/home")
-def home():# {{{
-    if not session.get("admin"):# {{{
+def home():# {
+    if not session.get("admin"):# {
         return redirect(url_for("index"))
-    return render_template("home.html") # }}}}}}
+    return render_template("home.html") # }}
 
 # This is a template doc (ADD DOCs like this)
 @app.route("/template_doc")
-def getTemplateDoc():# {{{
-    if not session.get("admin"):# {{{
+def getTemplateDoc():# {
+    if not session.get("admin"):# {
         return redirect(url_for("index"))
-    return render_template("template_doc.html")# }}}}}}
+    return render_template("template_doc.html")# }}
+
+@app.route("/eigen_decomposition")
+def getEigenDecompositionDoc():# {
+    if not session.get("admin"):# {
+        return redirect(url_for("index"))
+    return render_template("eigen_decomposition.html")# }}
 
 @app.route("/logout")
-def logout():# {{{
-    session.pop("admin", None)# {{{
-    return redirect(url_for("index"))# }}}}}}
+def logout():# {
+    session.pop("admin", None)# {
+    return redirect(url_for("index"))# }}
 
 if __name__ == '__main__':
     assert len(sys.argv) == 2
