@@ -22,7 +22,7 @@ import pandas as pd
 # }
 
 # App initialization{
-app = Flask(__name__)
+app = Flask(__name__, static_folder="live-documentation-frontend-bundle/dist/assets", template_folder="live-documentation-frontend-bundle/dist/src/templates")
 app.secret_key = "your_secret_key"  # Change this to a secure key
 app.jinja_env.auto_reload = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -80,7 +80,8 @@ def getTemplateDoc():# {
 def getEigenDecompositionDoc():# {
     if not session.get("admin"):# {
         return redirect(url_for("index"))
-    return render_template("eigen_decomposition.html")# }}
+    eigen_decomposition_codes = []
+    return render_template("eigen_decomposition.html", codes=eigen_decomposition_codes)# }}
 
 @app.route("/logout")
 def logout():# {
