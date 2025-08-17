@@ -93,6 +93,6 @@ if __name__ == '__main__':
     ADMIN_PASSWORD = sys.argv[1]
     #app.run(host=HOST, port=PORT, threaded=True, debug=False)
     server = Server(app.wsgi_app)
-    server.watch('templates/')
-    server.watch('static/')
+    server.watch('live-documentation-frontend-bundle/dist/src/templates')
+    server.watch('live-documentation-frontend-bundle/dist/assets')
     server.serve(host=HOST, port=PORT, open_url=True)
