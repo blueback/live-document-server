@@ -10,5 +10,9 @@ export default defineConfig({
         eigen_decomposition: './src/templates/eigen_decomposition.html'
       }
     }
-  }
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 5000,
+  },
 });

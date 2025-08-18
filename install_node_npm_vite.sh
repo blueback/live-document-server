@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Set the project and Vite directories
-PROJECT_DIR="my-local-node-project"
-VITE_PROJECT_DIR="vite-project"
+#PROJECT_DIR="my-local-node-project"
+VITE_PROJECT_DIR="live-documentation-frontend-bundle"
 
 # Create project directory if it doesn't exist
-mkdir -p $PROJECT_DIR
-cd $PROJECT_DIR
+#mkdir -p $PROJECT_DIR
+#cd $PROJECT_DIR
 
 # Step 1: Check if NVM is already installed locally
 if [ ! -d ".nvm" ]; then
@@ -59,8 +59,14 @@ if [ ! -d "node_modules" ]; then
 
   # Install Vite project dependencies
   $PWD/../.nvm/versions/node/$(node -v)/bin/npm install
+
 else
   echo "Vite project already set up."
+fi
+
+if [ ! -d "node_modules/prismjs" ]; then
+  # Install prismjs project dependencies
+  $PWD/../.nvm/versions/node/$(node -v)/bin/npm install prismjs
 fi
 
 # Step 5: The Vite development server is running
