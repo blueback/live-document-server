@@ -73,3 +73,7 @@ fi
 echo "Starting the Vite development server..."
 $PWD/../.nvm/versions/node/$(node -v)/bin/npm run dev
 
+# Step 6: The frontend is build for production
+echo "Building frontend..."
+$PWD/../.nvm/versions/node/$(node -v)/bin/npm run build
+
