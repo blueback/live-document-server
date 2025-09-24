@@ -42,15 +42,40 @@ import 'prismjs/components/prism-verilog.min';
     }
   }
 
+  const pres = document.getElementsByTagName('pre');
+  // console.log(pres);
+  for (let i = 0; i < pres.length; i++) {
+    pres[i].style.border = "3px solid lightblue";
+    pres[i].style.borderCollapse = "collapse";
+  }
+
+  const codes = document.getElementsByTagName('code');
+  // console.log(codes);
+  for (let i = 0; i < codes.length; i++) {
+    //codes[i].style.border = "3px solid lightblue";
+    //codes[i].style.borderCollapse = "collapse";
+    codes[i].style.padding = "0";
+    codes[i].style.margin = "0";
+    codes[i].style.display = "block";
+    //codes[i].style.fontSize = "0.75em";
+    //codes[i].style.lineHeight = "1.0";
+  }
+
   const matrix01 = document.getElementById('matrix01');
   console.log(matrix01)
+
+  for (let i = 0; i < codes.length; i++) {
+    if (codes[i].id == "matrix01") {
+      console.assert(codes[i] == matrix01, "a simple assert");
+      codes[i].textContent = `A = [[2, 3],
+      [4, 5]]
+# A is a 2x2 matrix`;
+    }
+  }
 
   const determinant01 = document.getElementById('determinant01');
   console.log(determinant01)
 
-  if (matrix01) {
-    matrix01.textContent = "A = [[2, 3],\n      [4, 5]]";
-  }
   if (determinant01) {
     determinant01.textContent = "det(A) = 2*5 - 3*4 - 3 ";
   }
