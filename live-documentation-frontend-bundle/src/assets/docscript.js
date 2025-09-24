@@ -2,17 +2,58 @@
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-okaidia.min.css';
 import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-verilog.min';
 // }
 
 {
+  const tables = document.getElementsByTagName('table');
+
+  for (let i = 0; i < tables.length; i++) {
+    tables[i].style.border = '1px solid black';
+    tables[i].style.borderCollapse = 'collapse';
+  }
+
+  const table_headings = document.getElementsByTagName('th');
+
+  for (let i = 0; i < table_headings.length; i++) {
+    table_headings[i].style.border = '1px solid black';
+    table_headings[i].style.borderCollapse = 'collapse';
+    table_headings[i].style.backgroundColor = 'grey';
+  }
+
+  const table_rows = document.getElementsByTagName('tr');
+
+  for (let i = 0; i < table_rows.length; i++) {
+    table_rows[i].style.border = '1px solid black';
+    table_rows[i].style.borderCollapse = 'collapse';
+  }
+
+  const table_data_elements = document.getElementsByTagName('td');
+
+  for (let i = 0; i < table_data_elements.length; i++) {
+    table_data_elements[i].style.border = '1px solid black';
+    table_data_elements[i].style.borderCollapse = 'collapse';
+    for (let j = 0; j < table_data_elements[i].children.length; j++) {
+      if (table_data_elements[i].children[j].nodeName === "PRE") {
+        //table_data_elements[i].style.backgroundColor = 'lightgrey';
+        //table_data_elements[i].style.backgroundColor = '#332822';
+        table_data_elements[i].style.backgroundColor = 'grey';
+      }
+    }
+  }
+
   const matrix01 = document.getElementById('matrix01');
   console.log(matrix01)
 
   const determinant01 = document.getElementById('determinant01');
   console.log(determinant01)
 
-  matrix01.textContent = "A = [[2, 3],\n      [4, 5]]";
-  determinant01.textContent = "det(A) = 2*5 - 3*4";
+  if (matrix01) {
+    matrix01.textContent = "A = [[2, 3],\n      [4, 5]]";
+  }
+  if (determinant01) {
+    determinant01.textContent = "det(A) = 2*5 - 3*4 - 3 ";
+  }
 
   Prism.highlightAll();
 
