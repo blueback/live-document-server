@@ -7,7 +7,8 @@ export default defineConfig({
         index: './src/templates/index.html',
         home: './src/templates/home.html',
         template_doc: './src/templates/template_doc.html',
-        eigen_decomposition: './src/templates/eigen_decomposition.html'
+        eigen_decomposition: './src/templates/eigen_decomposition.html',
+        workflow_management: './src/templates/workflow_management.html'
       }
     }
   },

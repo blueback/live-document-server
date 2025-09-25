@@ -83,6 +83,12 @@ def getEigenDecompositionDoc():# {
     eigen_decomposition_codes = []
     return render_template("eigen_decomposition.html", codes=eigen_decomposition_codes)# }}
 
+@app.route("/workflow_management")
+def getWorkflowManagementDoc():# {
+    if not session.get("admin"):# {
+        return redirect(url_for("index"))
+    return render_template("workflow_management.html")# }}
+
 @app.route("/logout")
 def logout():# {
     session.pop("admin", None)# {
