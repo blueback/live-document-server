@@ -5,6 +5,7 @@
 /lib64
 /pyvenv.cfg
 /.nvm
+/live-documentation-frontend-bundle/public/workflow_data/taskData.json
 
 # Logs
 logs
