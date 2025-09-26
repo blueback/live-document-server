@@ -5,34 +5,7 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-verilog.min';
 // }
 
-{
-  // Sample JSON Data (could come from an API or external file)
-  const data = [
-      {
-        "taskType": "Ticket",
-        "taskNumber": 28,
-        "priority": "1",
-        "deadline": "10 Sept 2025",
-        "dependency1": "task2",
-        "dependency2": "task3"
-      },
-      {
-        "taskType": "Ticket",
-        "taskNumber": 32,
-        "priority": "2",
-        "deadline": "10 Sept 2025",
-        "dependency1": "task3",
-      },
-      {
-        "taskType": "Ticket",
-        "taskNumber": 25,
-        "priority": "3",
-        "deadline": "10 Sept 2025",
-        "dependency1": "task5",
-        "dependency2": "task4"
-      }
-  ];
-  
+function FillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
   
@@ -142,4 +115,15 @@ import 'prismjs/components/prism-verilog.min';
   }
 
   Prism.highlightAll();
+}
+
+{
+  fetch("/workflow_data/taskData.json")
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      FillTaskDataAndDecorate(data);
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
 }

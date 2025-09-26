@@ -5,7 +5,7 @@
 # imports {
 from flask import request, redirect, url_for, session
 from flask import Flask, send_file, Response
-from flask import render_template
+from flask import render_template, send_from_directory
 from livereload import Server
 from datetime import datetime
 import signal
@@ -88,6 +88,12 @@ def getWorkflowManagementDoc():# {
     if not session.get("admin"):# {
         return redirect(url_for("index"))
     return render_template("workflow_management.html")# }}
+
+@app.route("/workflow_data/taskData.json")
+def sendTaskData():# {
+    if not session.get("admin"):# {
+        return redirect(url_for("index"))
+    return send_from_directory(os.path.join(app.root_path, "live-documentation-frontend-bundle/dist/workflow_data"), 'taskData.json')# }}
 
 @app.route("/logout")
 def logout():# {
