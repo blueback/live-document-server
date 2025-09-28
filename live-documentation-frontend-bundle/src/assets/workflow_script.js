@@ -35,7 +35,12 @@ function FillTaskDataAndDecorate(data) {
     
     // Create cells for each column in the row
     const cellTaskType = document.createElement('td');
-    cellTaskType.textContent = item.taskType;
+    const taskDescription = document.createElement('details');
+    const taskDescriptionSummary = document.createElement('summary');
+    taskDescriptionSummary.textContent = item.taskType;
+    taskDescription.textContent = item.Title;
+    taskDescription.appendChild(taskDescriptionSummary);
+    cellTaskType.appendChild(taskDescription);
     row.appendChild(cellTaskType);
   
     const cellTaskNumber = document.createElement('td');
@@ -49,6 +54,7 @@ function FillTaskDataAndDecorate(data) {
   
     const cellTaskPriority = document.createElement('td');
     cellTaskPriority.textContent = item.priority;
+    cellTaskPriority.setAttribute("align", "center");
     row.appendChild(cellTaskPriority);
   
     const cellTaskDeadline = document.createElement('td');
@@ -57,6 +63,7 @@ function FillTaskDataAndDecorate(data) {
   
     const cellTaskBaseEstimate = document.createElement('td');
     cellTaskBaseEstimate.textContent = item.baseEstimate;
+    cellTaskBaseEstimate.setAttribute("align", "center");
     row.appendChild(cellTaskBaseEstimate);
   
     item.dependencies.forEach(dependency => {
