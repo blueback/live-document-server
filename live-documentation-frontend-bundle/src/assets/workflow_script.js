@@ -274,11 +274,6 @@ function fillTaskDataAndDecorate(data) {
     cellTaskNumber.appendChild(preTaskNumber);
     row.appendChild(cellTaskNumber);
   
-    const cellTaskPriority = document.createElement('td');
-    cellTaskPriority.textContent = item.priority;
-    cellTaskPriority.setAttribute("align", "center");
-    row.appendChild(cellTaskPriority);
-  
     const cellTaskDeadline = document.createElement('td');
     cellTaskDeadline.textContent = item.deadline;
     row.appendChild(cellTaskDeadline);
@@ -311,6 +306,11 @@ function fillTaskDataAndDecorate(data) {
     cellExpectedCompletionDate.textContent = item.expectedCompletionDate;
     cellExpectedCompletionDate.setAttribute("align", "center");
     row.appendChild(cellExpectedCompletionDate);
+  
+    const cellTaskPriority = document.createElement('td');
+    cellTaskPriority.textContent = item.priority;
+    cellTaskPriority.setAttribute("align", "center");
+    row.appendChild(cellTaskPriority);
   
     item.dependencies.forEach(dependency => {
       const cellTaskDependency = document.createElement('td');
