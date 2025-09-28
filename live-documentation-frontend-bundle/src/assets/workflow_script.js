@@ -98,9 +98,9 @@ function createTaskFlowGraph2(taskData) {
         {
           data:
           {
-            source: dependency,
-            target: i,
-            label: `${dependency}-${i}`
+            source: i,
+            target: dependency,
+            label: `${i}-${dependency}`
           }
         });
     });
@@ -159,6 +159,31 @@ function createTaskFlowGraph2(taskData) {
   });
 }
 
+function computeTotalEstimate(taskData, i, visited) {
+  if (visited[i] != 0) {
+    return;
+  }
+
+  visited[i] = 1;
+
+  taskData[i].totalEstimate = taskData[i].baseEstimate;
+  
+  for (let j = 0; j < taskData[i].dependencies.length; j++) {
+    computeTotalEstimate(taskData, taskData[i].dependencies[j], visited);
+    taskData[i].totalEstimate += taskData[taskData[i].dependencies[j]].totalEstimate;
+  }
+}
+
+function computeTotalEstimates(taskData) {
+  var visited = [];
+  for (let i = 0; i < taskData.length; i++) {
+    visited.push(0);
+  }
+  for (let i = 0; i < taskData.length; i++) {
+    computeTotalEstimate(taskData, i, visited);
+  }
+}
+
 function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
@@ -181,11 +206,19 @@ function fillTaskDataAndDecorate(data) {
   }
 
   data.sort((a, b) => a.priority - b.priority);
+
+  computeTotalEstimates(data);
   
   // Loop through the data and create rows
-  data.forEach(item => {
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
     // Create a new row
     const row = document.createElement('tr');
+  
+    const cellTaskSerialNumber = document.createElement('td');
+    const preTaskSerialNumber = createUnderCode(i, "language-verilog");
+    cellTaskSerialNumber.appendChild(preTaskSerialNumber);
+    row.appendChild(cellTaskSerialNumber);
     
     // Create cells for each column in the row
     const cellTaskType = document.createElement('td');
@@ -217,6 +250,11 @@ function fillTaskDataAndDecorate(data) {
     cellTaskBaseEstimate.setAttribute("align", "center");
     row.appendChild(cellTaskBaseEstimate);
   
+    const cellTaskTotalEstimate = document.createElement('td');
+    cellTaskTotalEstimate.textContent = item.totalEstimate;
+    cellTaskTotalEstimate.setAttribute("align", "center");
+    row.appendChild(cellTaskTotalEstimate);
+  
     item.dependencies.forEach(dependency => {
       const cellTaskDependency = document.createElement('td');
       const preTaskDependency = document.createElement('pre');
@@ -230,7 +268,7 @@ function fillTaskDataAndDecorate(data) {
   
     // Append the row to the table body
     tableBody.appendChild(row);
-  });
+  }
 
 
   const tables = document.getElementsByTagName('table');
