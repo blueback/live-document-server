@@ -8,6 +8,25 @@ import 'prismjs/components/prism-verilog.min';
 function FillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+
+  const tableDependenciesHeading = document.getElementById('tableDependenciesHeading')
+  var max_num_dependencies = 1;
+  data.forEach(item => {
+    if (max_num_dependencies < item.dependencies.length) {
+      max_num_dependencies = item.dependencies.length;
+    }
+  });
+  tableDependenciesHeading.setAttribute("colspan", max_num_dependencies);
+
+  const taskSubHeadingRow = document.getElementById('taskSubHeadingRow')
+  for (let i = 0; i < max_num_dependencies; i++) {
+    const dependencySubHeading = document.createElement('th');
+    dependencySubHeading.textContent = `Dependency ${i+1}`;
+    dependencySubHeading.setAttribute("align", "center");
+    taskSubHeadingRow.appendChild(dependencySubHeading);
+  }
+
+  data.sort((a, b) => a.priority - b.priority);
   
   // Loop through the data and create rows
   data.forEach(item => {
