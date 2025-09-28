@@ -36,23 +36,20 @@ function FillTaskDataAndDecorate(data) {
     cellTaskDeadline.textContent = item.deadline;
     row.appendChild(cellTaskDeadline);
   
-    const cellTaskDependency1 = document.createElement('td');
-    const preTaskDependency1 = document.createElement('pre');
-    const codeTaskDependency1 = document.createElement('code');
-    codeTaskDependency1.className = "language-verilog";
-    codeTaskDependency1.textContent = item.dependency1;
-    preTaskDependency1.appendChild(codeTaskDependency1);
-    cellTaskDependency1.appendChild(preTaskDependency1);
-    row.appendChild(cellTaskDependency1);
+    const cellTaskBaseEstimate = document.createElement('td');
+    cellTaskBaseEstimate.textContent = item.baseEstimate;
+    row.appendChild(cellTaskBaseEstimate);
   
-    const cellTaskDependency2 = document.createElement('td');
-    const preTaskDependency2 = document.createElement('pre');
-    const codeTaskDependency2 = document.createElement('code');
-    codeTaskDependency2.className = "language-verilog";
-    codeTaskDependency2.textContent = item.dependency2;
-    preTaskDependency2.appendChild(codeTaskDependency2);
-    cellTaskDependency2.appendChild(preTaskDependency2);
-    row.appendChild(cellTaskDependency2);
+    item.dependencies.forEach(dependency => {
+      const cellTaskDependency = document.createElement('td');
+      const preTaskDependency = document.createElement('pre');
+      const codeTaskDependency = document.createElement('code');
+      codeTaskDependency.className = "language-verilog";
+      codeTaskDependency.textContent = dependency;
+      preTaskDependency.appendChild(codeTaskDependency);
+      cellTaskDependency.appendChild(preTaskDependency);
+      row.appendChild(cellTaskDependency);
+    });
   
     // Append the row to the table body
     tableBody.appendChild(row);
