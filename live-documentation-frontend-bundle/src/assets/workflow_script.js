@@ -3,6 +3,7 @@ import Prism from 'prismjs';
 import 'prismjs/themes/prism-okaidia.min.css';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-verilog.min';
+import cytoscape from 'cytoscape';
 // }
 
 function createUnderCode(content, lang) {
@@ -12,6 +13,150 @@ function createUnderCode(content, lang) {
   code.textContent = content;
   pre.appendChild(code);
   return pre;
+}
+
+function createTaskFlowGraph(taskData) {
+  // Your graph data and configuration code (same as above)
+  const adjacencyList = {
+    "A": ["B", "C"],
+    "B": ["A", "D"],
+    "C": ["A", "D"],
+    "D": ["B", "C"]
+  };
+  
+  const nodes = [];
+  const edges = [];
+  
+  for (const vertex in adjacencyList) {
+    nodes.push({ data: { id: vertex, label: vertex } });
+  }
+  
+  for (const vertex in adjacencyList) {
+    adjacencyList[vertex].forEach(neighbor => {
+      edges.push({ data: { source: vertex, target: neighbor, label: `${vertex}-${neighbor}` } });
+    });
+  }
+  console.log(nodes);
+  console.log(edges);
+  
+  const cy = cytoscape({
+    container: document.getElementById('taskGraph'),
+    elements: [...nodes, ...edges],
+    style: [
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#0074d9',
+          'label': 'data(label)',
+          'color': '#fff',
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'width': '30px',
+          'height': '30px'
+        }
+      },
+      {
+        selector: 'edge',
+        style: {
+          'width': 2,
+          'line-color': '#ccc',
+          'label': 'data(label)',
+          'color': '#ccc',
+          'text-rotation': 'autorotate',
+          'text-opacity': 0.8
+        }
+      }
+    ],
+    layout: {
+      name: 'grid',
+      rows: 5
+    }
+  });
+}
+
+function createTaskFlowGraph2(taskData) {
+  const nodes = [];
+  const edges = [];
+
+  // Convert tasks to Cytoscape nodes
+  for (let i = 0; i < taskData.length; i++) {
+    nodes.push(
+      {
+        data:
+        {
+          id: i,
+          label: `${taskData[i].Title}\n(${taskData[i].priority})`,
+          priority: taskData[i].priority
+        }
+      });
+  }
+  
+  // Convert dependencies to Cytoscape edges
+  for (let i = 0; i < taskData.length; i++) {
+    taskData[i].dependencies.forEach(dependency => {
+      edges.push(
+        {
+          data:
+          {
+            source: dependency,
+            target: i,
+            label: `${dependency}-${i}`
+          }
+        });
+    });
+  }
+  
+  // Priority color mapping
+  const priorityColor = {
+    1: '#e74c3c',
+    2: '#f39c12',
+    3: '#2ecc71'
+  };
+  
+  // Initialize Cytoscape
+  const cy = cytoscape({
+    container: document.getElementById('taskGraph'),
+    elements: [...nodes, ...edges],
+    style: [
+      {
+        selector: 'node',
+        style: {
+          'background-color': ele => priorityColor[ele.data('priority')],
+          'label': 'data(label)',
+          'color': '#325',
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'font-size': '10px',
+          'text-wrap': 'wrap',
+          'width': '80px',
+          'height': '40px',
+          'shape': 'roundrectangle'
+        }
+      },
+      {
+        selector: 'edge',
+        style: {
+          'width': 2,
+          'line-color': '#999',
+          'target-arrow-color': '#999',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'arrow-scale': 1.2,
+          'label': 'data(label)',
+          'font-size': '8px',
+          'text-rotation': 'autorotate',
+          'text-margin-y': -10,
+          'color': '#666'
+        }
+      }
+    ],
+    layout: {
+      name: 'breadthfirst',
+      directed: true,
+      padding: 10,
+      spacingFactor: 1.5
+    }
+  });
 }
 
 function fillTaskDataAndDecorate(data) {
@@ -152,6 +297,7 @@ function fillTaskDataAndDecorate(data) {
     .then(data => {
       console.log(data);
       fillTaskDataAndDecorate(data);
+      createTaskFlowGraph2(data);
     })
     .catch(error => console.error('Error fetching data:', error));
 

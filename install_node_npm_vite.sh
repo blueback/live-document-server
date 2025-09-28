@@ -69,6 +69,11 @@ if [ ! -d "node_modules/prismjs" ]; then
   $PWD/../.nvm/versions/node/$(node -v)/bin/npm install prismjs
 fi
 
+if [ ! -d "node_modules/cytoscape" ]; then
+  # Install prismjs project dependencies
+  $PWD/../.nvm/versions/node/$(node -v)/bin/npm install cytoscape
+fi
+
 # Step 5: The Vite development server is running
 echo "Starting the Vite development server..."
 $PWD/../.nvm/versions/node/$(node -v)/bin/npm run dev
