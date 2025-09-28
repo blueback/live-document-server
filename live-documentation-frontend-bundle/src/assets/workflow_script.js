@@ -159,28 +159,64 @@ function createTaskFlowGraph2(taskData) {
   });
 }
 
-function computeTotalEstimate(taskData, i, visited) {
+function computeTotalAggregateEstimate(taskData, i, visited) {
   if (visited[i] != 0) {
     return;
   }
 
   visited[i] = 1;
 
-  taskData[i].totalEstimate = taskData[i].baseEstimate;
+  taskData[i].totalAggregateEstimate = taskData[i].totalBaseEstimate;
   
   for (let j = 0; j < taskData[i].dependencies.length; j++) {
-    computeTotalEstimate(taskData, taskData[i].dependencies[j], visited);
-    taskData[i].totalEstimate += taskData[taskData[i].dependencies[j]].totalEstimate;
+    computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
+    taskData[i].totalAggregateEstimate +=
+      taskData[taskData[i].dependencies[j]].totalAggregateEstimate;
   }
 }
 
-function computeTotalEstimates(taskData) {
+function computeTotalAggregateEstimates(taskData) {
   var visited = [];
   for (let i = 0; i < taskData.length; i++) {
     visited.push(0);
   }
   for (let i = 0; i < taskData.length; i++) {
-    computeTotalEstimate(taskData, i, visited);
+    computeTotalAggregateEstimate(taskData, i, visited);
+  }
+}
+
+function computeRemainingAggregateEstimate(taskData, i, visited) {
+  if (visited[i] != 0) {
+    return;
+  }
+
+  visited[i] = 1;
+
+  if ("remainingBaseEstimate" in taskData[i]) {
+    if (taskData[i].remainingBaseEstimate > taskData[i].totalBaseEstimate) {
+      console.warn("Remaining Base estimate should be less that total Base estimate(check your taskData.json)!!");
+      taskData[i].remainingAggregateEstimate = taskData[i].totalBaseEstimate;
+    } else {
+      taskData[i].remainingAggregateEstimate = taskData[i].remainingBaseEstimate;
+    }
+  } else {
+    taskData[i].remainingAggregateEstimate = taskData[i].totalBaseEstimate;
+  }
+  
+  for (let j = 0; j < taskData[i].dependencies.length; j++) {
+    computeRemainingAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
+    taskData[i].remainingAggregateEstimate +=
+      taskData[taskData[i].dependencies[j]].remainingAggregateEstimate;
+  }
+}
+
+function computeRemainingAggregateEstimates(taskData) {
+  var visited = [];
+  for (let i = 0; i < taskData.length; i++) {
+    visited.push(0);
+  }
+  for (let i = 0; i < taskData.length; i++) {
+    computeRemainingAggregateEstimate(taskData, i, visited);
   }
 }
 
@@ -202,12 +238,14 @@ function fillTaskDataAndDecorate(data) {
     const dependencySubHeading = document.createElement('th');
     dependencySubHeading.textContent = `Dependency ${i+1}`;
     dependencySubHeading.setAttribute("align", "center");
+    dependencySubHeading.setAttribute("rowspan", "2");
     taskSubHeadingRow.appendChild(dependencySubHeading);
   }
 
   data.sort((a, b) => a.priority - b.priority);
 
-  computeTotalEstimates(data);
+  computeTotalAggregateEstimates(data);
+  computeRemainingAggregateEstimates(data);
   
   // Loop through the data and create rows
   for (let i = 0; i < data.length; i++) {
@@ -245,15 +283,34 @@ function fillTaskDataAndDecorate(data) {
     cellTaskDeadline.textContent = item.deadline;
     row.appendChild(cellTaskDeadline);
   
-    const cellTaskBaseEstimate = document.createElement('td');
-    cellTaskBaseEstimate.textContent = item.baseEstimate;
-    cellTaskBaseEstimate.setAttribute("align", "center");
-    row.appendChild(cellTaskBaseEstimate);
+    {
+      const cellTaskTotalBaseEstimate = document.createElement('td');
+      cellTaskTotalBaseEstimate.textContent = item.totalBaseEstimate;
+      cellTaskTotalBaseEstimate.setAttribute("align", "center");
+      row.appendChild(cellTaskTotalBaseEstimate);
   
-    const cellTaskTotalEstimate = document.createElement('td');
-    cellTaskTotalEstimate.textContent = item.totalEstimate;
-    cellTaskTotalEstimate.setAttribute("align", "center");
-    row.appendChild(cellTaskTotalEstimate);
+      const cellTaskRemainingBaseEstimate = document.createElement('td');
+      cellTaskRemainingBaseEstimate.textContent = item.remainingBaseEstimate;
+      cellTaskRemainingBaseEstimate.setAttribute("align", "center");
+      row.appendChild(cellTaskRemainingBaseEstimate);
+    }
+
+    {
+      const cellTaskTotalAggrEstimate = document.createElement('td');
+      cellTaskTotalAggrEstimate.textContent = item.totalAggregateEstimate;
+      cellTaskTotalAggrEstimate.setAttribute("align", "center");
+      row.appendChild(cellTaskTotalAggrEstimate);
+  
+      const cellTaskRemainingAggrEstimate = document.createElement('td');
+      cellTaskRemainingAggrEstimate.textContent = item.remainingAggregateEstimate;
+      cellTaskRemainingAggrEstimate.setAttribute("align", "center");
+      row.appendChild(cellTaskRemainingAggrEstimate);
+    }
+
+    const cellExpectedCompletionDate = document.createElement('td');
+    cellExpectedCompletionDate.textContent = item.expectedCompletionDate;
+    cellExpectedCompletionDate.setAttribute("align", "center");
+    row.appendChild(cellExpectedCompletionDate);
   
     item.dependencies.forEach(dependency => {
       const cellTaskDependency = document.createElement('td');
