@@ -5,7 +5,16 @@ import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-verilog.min';
 // }
 
-function FillTaskDataAndDecorate(data) {
+function createUnderCode(content, lang) {
+  const pre = document.createElement('pre');
+  const code = document.createElement('code');
+  code.className = lang;
+  code.textContent = content;
+  pre.appendChild(code);
+  return pre;
+}
+
+function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
 
@@ -38,17 +47,14 @@ function FillTaskDataAndDecorate(data) {
     const taskDescription = document.createElement('details');
     const taskDescriptionSummary = document.createElement('summary');
     taskDescriptionSummary.textContent = item.taskType;
-    taskDescription.textContent = item.Title;
+    const preTaskTitle = createUnderCode(item.Title, "language-python");
+    taskDescription.appendChild(preTaskTitle);
     taskDescription.appendChild(taskDescriptionSummary);
     cellTaskType.appendChild(taskDescription);
     row.appendChild(cellTaskType);
   
     const cellTaskNumber = document.createElement('td');
-    const preTaskNumber = document.createElement('pre');
-    const codeTaskNumber = document.createElement('code');
-    codeTaskNumber.className = "language-verilog";
-    codeTaskNumber.textContent = item.taskNumber;
-    preTaskNumber.appendChild(codeTaskNumber);
+    const preTaskNumber = createUnderCode(item.taskNumber, "language-verilog");
     cellTaskNumber.appendChild(preTaskNumber);
     row.appendChild(cellTaskNumber);
   
@@ -145,7 +151,7 @@ function FillTaskDataAndDecorate(data) {
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      FillTaskDataAndDecorate(data);
+      fillTaskDataAndDecorate(data);
     })
     .catch(error => console.error('Error fetching data:', error));
 
