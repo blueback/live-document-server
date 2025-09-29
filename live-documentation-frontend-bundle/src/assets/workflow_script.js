@@ -85,7 +85,7 @@ function createTaskFlowGraph2(taskData) {
         data:
         {
           id: i,
-          label: `${taskData[i].Title}\n(${taskData[i].priority})`,
+          label: `${taskData[i].Title.slice(1,-1)}\n(${taskData[i].priority})`,
           priority: taskData[i].priority
         }
       });
@@ -128,8 +128,11 @@ function createTaskFlowGraph2(taskData) {
           'text-halign': 'center',
           'font-size': '10px',
           'text-wrap': 'wrap',
-          'width': '80px',
-          'height': '40px',
+          'text-max-width': '80px',
+          //'width': '80px',
+          //'height': '40px',
+          'width': 'label',
+          'height': 'label',
           'shape': 'roundrectangle'
         }
       },
