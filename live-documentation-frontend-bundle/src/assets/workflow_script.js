@@ -292,6 +292,11 @@ function fillTaskDataAndDecorate(data) {
     const preTaskTitle = createUnderCode(item.Title, "language-python");
     taskTitle.appendChild(preTaskTitle);
     taskTitle.appendChild(taskTitleSummary);
+    if ("description" in item) {
+      cellTaskType.setAttribute("title", item.Title + "\n" + item.description.join("\n"));
+    } else {
+      cellTaskType.setAttribute("title", item.Title);
+    }
     cellTaskType.appendChild(taskTitle);
     row.appendChild(cellTaskType);
   
