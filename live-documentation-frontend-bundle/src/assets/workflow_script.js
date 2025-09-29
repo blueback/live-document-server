@@ -281,6 +281,7 @@ function fillTaskDataAndDecorate(data) {
   
     const cellTaskSerialNumber = document.createElement('td');
     const preTaskSerialNumber = createUnderCode(i, "language-verilog");
+    cellTaskSerialNumber.setAttribute("title", item.Title);
     cellTaskSerialNumber.appendChild(preTaskSerialNumber);
     row.appendChild(cellTaskSerialNumber);
     
@@ -380,6 +381,7 @@ function fillTaskDataAndDecorate(data) {
         codeTaskDependency.className = "language-verilog";
         codeTaskDependency.textContent = dependency;
         preTaskDependency.appendChild(codeTaskDependency);
+        cellTaskDependency.setAttribute("title", data[dependency].Title);
         cellTaskDependency.appendChild(preTaskDependency);
         row.appendChild(cellTaskDependency);
       });
