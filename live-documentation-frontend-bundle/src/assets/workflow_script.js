@@ -85,7 +85,7 @@ function createTaskFlowGraph2(taskData) {
         data:
         {
           id: i,
-          label: `${taskData[i].Title.slice(1,-1)}\n(${i})\n(${taskData[i].priority})`,
+          label: `${taskData[i].Title}\n(${i})\n(${taskData[i].priority})`,
           priority: taskData[i].priority
         }
       });
@@ -289,14 +289,19 @@ function fillTaskDataAndDecorate(data) {
     const taskTitle = document.createElement('details');
     const taskTitleSummary = document.createElement('summary');
     taskTitleSummary.textContent = item.taskType;
-    const preTaskTitle = createUnderCode(item.Title, "language-python");
-    taskTitle.appendChild(preTaskTitle);
-    taskTitle.appendChild(taskTitleSummary);
+    cellTaskType.setAttribute("title", item.Title);
     if ("description" in item) {
-      cellTaskType.setAttribute("title", item.Title + "\n" + item.description.join("\n"));
+      const preTaskTitle =
+          createUnderCode("# " + item.Title + "\n\n\"\"\"\n" +
+                              item.description.join("\n") + "\n\"\"\"",
+                          "language-python");
+      taskTitle.appendChild(preTaskTitle);
     } else {
-      cellTaskType.setAttribute("title", item.Title);
+      const preTaskTitle =
+          createUnderCode("# " + item.Title, "language-python");
+      taskTitle.appendChild(preTaskTitle);
     }
+    taskTitle.appendChild(taskTitleSummary);
     cellTaskType.appendChild(taskTitle);
     row.appendChild(cellTaskType);
   
