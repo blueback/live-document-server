@@ -166,7 +166,12 @@ function computeTotalAggregateEstimate(taskData, i, visited) {
 
   visited[i] = 1;
 
-  taskData[i].totalAggregateEstimate = taskData[i].totalBaseEstimate;
+  if ("totalBaseEstimate" in taskData[i]) {
+    taskData[i].totalAggregateEstimate = taskData[i].totalBaseEstimate;
+  } else {
+    console.warn("Total base estimate is not present, so assuming 0(check your taskData.json)!!");
+    taskData[i].totalAggregateEstimate = 0;
+  }
   
   for (let j = 0; j < taskData[i].dependencies.length; j++) {
     computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
@@ -193,14 +198,24 @@ function computeRemainingAggregateEstimate(taskData, i, visited) {
   visited[i] = 1;
 
   if ("remainingBaseEstimate" in taskData[i]) {
-    if (taskData[i].remainingBaseEstimate > taskData[i].totalBaseEstimate) {
-      console.warn("Remaining Base estimate should be less that total Base estimate(check your taskData.json)!!");
-      taskData[i].remainingAggregateEstimate = taskData[i].totalBaseEstimate;
+    if ("totalBaseEstimate" in taskData[i]) {
+      if (taskData[i].remainingBaseEstimate > taskData[i].totalBaseEstimate) {
+        console.warn("Remaining Base estimate should be less that total Base estimate(check your taskData.json)!!");
+        taskData[i].remainingAggregateEstimate = taskData[i].totalBaseEstimate;
+      } else {
+        taskData[i].remainingAggregateEstimate = taskData[i].remainingBaseEstimate;
+      }
     } else {
-      taskData[i].remainingAggregateEstimate = taskData[i].remainingBaseEstimate;
+      console.warn("Remaining Base estimate should be less that total Base estimate(check your taskData.json)!!");
+      taskData[i].remainingAggregateEstimate = 0;
     }
   } else {
-    taskData[i].remainingAggregateEstimate = taskData[i].totalBaseEstimate;
+    console.warn("Remaining base estimate is not present, so assuming same as total base estimate(check your taskData.json)!!");
+    if ("totalBaseEstimate" in taskData[i]) {
+      taskData[i].remainingAggregateEstimate = taskData[i].totalBaseEstimate;
+    } else {
+      taskData[i].remainingAggregateEstimate = 0;
+    }
   }
   
   for (let j = 0; j < taskData[i].dependencies.length; j++) {
@@ -280,12 +295,36 @@ function fillTaskDataAndDecorate(data) {
   
     {
       const cellTaskTotalBaseEstimate = document.createElement('td');
-      cellTaskTotalBaseEstimate.textContent = item.totalBaseEstimate;
+      if ("totalBaseEstimate" in item) {
+        cellTaskTotalBaseEstimate.textContent = item.totalBaseEstimate;
+      } else {
+        console.warn(`Total base estimate is not present for ${i}th task!!`);
+        cellTaskTotalBaseEstimate.textContent = "0(default)";
+      }
       cellTaskTotalBaseEstimate.setAttribute("align", "center");
       row.appendChild(cellTaskTotalBaseEstimate);
   
       const cellTaskRemainingBaseEstimate = document.createElement('td');
-      cellTaskRemainingBaseEstimate.textContent = item.remainingBaseEstimate;
+      if ("remainingBaseEstimate" in item) {
+        if ("totalBaseEstimate" in item) {
+          if (item.remainingBaseEstimate > item.totalBaseEstimate) {
+            console.warn(`Remaining Base estimate should be less that total Base estimate for ${i}th task!!`);
+            cellTaskRemainingBaseEstimate.textContent = `${cellTaskTotalBaseEstimate.textContent}(adjusted)`;
+          } else {
+            cellTaskRemainingBaseEstimate.textContent = item.remainingBaseEstimate;
+          }
+        } else {
+          console.warn(`Remaining Base estimate should be less that total Base estimate for ${i}th task!!`);
+          cellTaskRemainingBaseEstimate.textContent = `${cellTaskTotalBaseEstimate.textContent}(adjusted)`;
+        }
+      } else {
+        console.warn(`Remaining base estimate is not present for ${i}th task!!`);
+        if ("totalBaseEstimate" in item) {
+          cellTaskRemainingBaseEstimate.textContent = `${cellTaskTotalBaseEstimate.textContent}(default)`;
+        } else {
+          cellTaskRemainingBaseEstimate.textContent = "0(default)";
+        }
+      }
       cellTaskRemainingBaseEstimate.setAttribute("align", "center");
       row.appendChild(cellTaskRemainingBaseEstimate);
     }
