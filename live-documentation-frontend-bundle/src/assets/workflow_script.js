@@ -93,17 +93,19 @@ function createTaskFlowGraph2(taskData) {
   
   // Convert dependencies to Cytoscape edges
   for (let i = 0; i < taskData.length; i++) {
-    taskData[i].dependencies.forEach(dependency => {
-      edges.push(
-        {
-          data:
+    if ("dependencies" in taskData[i]) {
+      taskData[i].dependencies.forEach(dependency => {
+        edges.push(
           {
-            source: i,
-            target: dependency,
-            label: `${i}-${dependency}`
-          }
-        });
-    });
+            data:
+            {
+              source: i,
+              target: dependency,
+              label: `${i}-${dependency}`
+            }
+          });
+      });
+    }
   }
   
   // Priority color mapping
@@ -176,10 +178,12 @@ function computeTotalAggregateEstimate(taskData, i, visited) {
     taskData[i].totalAggregateEstimate = 0;
   }
   
-  for (let j = 0; j < taskData[i].dependencies.length; j++) {
-    computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
-    taskData[i].totalAggregateEstimate +=
-      taskData[taskData[i].dependencies[j]].totalAggregateEstimate;
+  if ("dependencies" in taskData[i]) {
+    for (let j = 0; j < taskData[i].dependencies.length; j++) {
+      computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
+      taskData[i].totalAggregateEstimate +=
+        taskData[taskData[i].dependencies[j]].totalAggregateEstimate;
+    }
   }
 }
 
@@ -221,10 +225,12 @@ function computeRemainingAggregateEstimate(taskData, i, visited) {
     }
   }
   
-  for (let j = 0; j < taskData[i].dependencies.length; j++) {
-    computeRemainingAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
-    taskData[i].remainingAggregateEstimate +=
-      taskData[taskData[i].dependencies[j]].remainingAggregateEstimate;
+  if ("dependencies" in taskData[i]) {
+    for (let j = 0; j < taskData[i].dependencies.length; j++) {
+      computeRemainingAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
+      taskData[i].remainingAggregateEstimate +=
+        taskData[taskData[i].dependencies[j]].remainingAggregateEstimate;
+    }
   }
 }
 
@@ -245,8 +251,10 @@ function fillTaskDataAndDecorate(data) {
   const tableDependenciesHeading = document.getElementById('tableDependenciesHeading')
   var max_num_dependencies = 1;
   data.forEach(item => {
-    if (max_num_dependencies < item.dependencies.length) {
-      max_num_dependencies = item.dependencies.length;
+    if ("dependencies" in item) {
+      if (max_num_dependencies < item.dependencies.length) {
+        max_num_dependencies = item.dependencies.length;
+      }
     }
   });
   tableDependenciesHeading.setAttribute("colspan", max_num_dependencies);
@@ -354,16 +362,18 @@ function fillTaskDataAndDecorate(data) {
     cellTaskPriority.setAttribute("align", "center");
     row.appendChild(cellTaskPriority);
   
-    item.dependencies.forEach(dependency => {
-      const cellTaskDependency = document.createElement('td');
-      const preTaskDependency = document.createElement('pre');
-      const codeTaskDependency = document.createElement('code');
-      codeTaskDependency.className = "language-verilog";
-      codeTaskDependency.textContent = dependency;
-      preTaskDependency.appendChild(codeTaskDependency);
-      cellTaskDependency.appendChild(preTaskDependency);
-      row.appendChild(cellTaskDependency);
-    });
+    if ("dependencies" in item) {
+      item.dependencies.forEach(dependency => {
+        const cellTaskDependency = document.createElement('td');
+        const preTaskDependency = document.createElement('pre');
+        const codeTaskDependency = document.createElement('code');
+        codeTaskDependency.className = "language-verilog";
+        codeTaskDependency.textContent = dependency;
+        preTaskDependency.appendChild(codeTaskDependency);
+        cellTaskDependency.appendChild(preTaskDependency);
+        row.appendChild(cellTaskDependency);
+      });
+    }
   
     // Append the row to the table body
     tableBody.appendChild(row);
