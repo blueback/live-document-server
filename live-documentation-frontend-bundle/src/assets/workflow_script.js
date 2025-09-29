@@ -85,7 +85,7 @@ function createTaskFlowGraph2(taskData) {
         data:
         {
           id: i,
-          label: `${taskData[i].Title.slice(1,-1)}\n(${taskData[i].priority})`,
+          label: `${taskData[i].Title.slice(1,-1)}\n(${i})\n(${taskData[i].priority})`,
           priority: taskData[i].priority
         }
       });
