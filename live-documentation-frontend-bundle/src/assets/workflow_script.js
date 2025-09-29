@@ -278,13 +278,13 @@ function fillTaskDataAndDecorate(data) {
     
     // Create cells for each column in the row
     const cellTaskType = document.createElement('td');
-    const taskDescription = document.createElement('details');
-    const taskDescriptionSummary = document.createElement('summary');
-    taskDescriptionSummary.textContent = item.taskType;
+    const taskTitle = document.createElement('details');
+    const taskTitleSummary = document.createElement('summary');
+    taskTitleSummary.textContent = item.taskType;
     const preTaskTitle = createUnderCode(item.Title, "language-python");
-    taskDescription.appendChild(preTaskTitle);
-    taskDescription.appendChild(taskDescriptionSummary);
-    cellTaskType.appendChild(taskDescription);
+    taskTitle.appendChild(preTaskTitle);
+    taskTitle.appendChild(taskTitleSummary);
+    cellTaskType.appendChild(taskTitle);
     row.appendChild(cellTaskType);
   
     const cellTaskNumber = document.createElement('td');
