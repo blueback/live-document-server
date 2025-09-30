@@ -166,7 +166,7 @@ function createTaskFlowGraph2(taskData) {
 
 function computeTotalAggregateEstimate(taskData, i, visited) {
   if (visited[i] != 0) {
-    return;
+    return 0;
   }
 
   visited[i] = 1;
@@ -180,11 +180,12 @@ function computeTotalAggregateEstimate(taskData, i, visited) {
   
   if ("dependencies" in taskData[i]) {
     for (let j = 0; j < taskData[i].dependencies.length; j++) {
-      computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
       taskData[i].totalAggregateEstimate +=
-        taskData[taskData[i].dependencies[j]].totalAggregateEstimate;
+        computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
     }
   }
+
+  return taskData[i].totalAggregateEstimate;
 }
 
 function computeTotalAggregateEstimates(taskData) {
@@ -193,13 +194,16 @@ function computeTotalAggregateEstimates(taskData) {
     visited.push(0);
   }
   for (let i = 0; i < taskData.length; i++) {
+    for (let i = 0; i < taskData.length; i++) {
+      visited[i] = 0;
+    }
     computeTotalAggregateEstimate(taskData, i, visited);
   }
 }
 
 function computeRemainingAggregateEstimate(taskData, i, visited) {
   if (visited[i] != 0) {
-    return;
+    return 0;
   }
 
   visited[i] = 1;
@@ -227,11 +231,12 @@ function computeRemainingAggregateEstimate(taskData, i, visited) {
   
   if ("dependencies" in taskData[i]) {
     for (let j = 0; j < taskData[i].dependencies.length; j++) {
-      computeRemainingAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
       taskData[i].remainingAggregateEstimate +=
-        taskData[taskData[i].dependencies[j]].remainingAggregateEstimate;
+        computeRemainingAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
     }
   }
+
+  return taskData[i].remainingAggregateEstimate;
 }
 
 function computeRemainingAggregateEstimates(taskData) {
@@ -240,6 +245,9 @@ function computeRemainingAggregateEstimates(taskData) {
     visited.push(0);
   }
   for (let i = 0; i < taskData.length; i++) {
+    for (let i = 0; i < taskData.length; i++) {
+      visited[i] = 0;
+    }
     computeRemainingAggregateEstimate(taskData, i, visited);
   }
 }
