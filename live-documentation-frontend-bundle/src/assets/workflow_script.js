@@ -252,9 +252,33 @@ function computeRemainingAggregateEstimates(taskData) {
   }
 }
 
+function addTotalWork(data) {
+  var dependency_counts = []
+  for (let i = 0; i < data.length; i++) {
+    dependency_counts.push(0);
+  }
+  for (let i = 0; i < data.length; i++) {
+    if ("dependencies" in data[i]) {
+      data[i].dependencies.forEach(dependency => {
+        dependency_counts[dependency]++;
+      });
+    }
+  }
+  data.push({taskType: "Total Work", Title: "Total Work"});
+  data[data.length - 1].dependencies = []
+  console.log(data[data.length - 1]);
+  for (let i = 0; i < data.length - 1; i++) {
+    if (dependency_counts[i] == 0) {
+      data[data.length - 1].dependencies.push(i);
+    }
+  }
+}
+
 function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
+
+  addTotalWork(data);
 
   const tableDependenciesHeading = document.getElementById('tableDependenciesHeading')
   var max_num_dependencies = 1;
