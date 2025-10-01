@@ -168,11 +168,21 @@ function createTaskFlowGraph2(taskData) {
 
 function createTaskFlowGraph3(taskData) {
   // DOT language string (your network definition)
-  const dotString = `
+  var dotString = `
     digraph G {
-      A -> B;
-      B -> C;
-      C -> A;
+  `;
+  for (let i = 0; i < taskData.length; i++) {
+    dotString += `Node${i} [label=\"${taskData[i].Title}\\n(${i})\\n(${taskData[i].priority})\", shape=rectangle, color=grey, style=filled];\n`;
+  }
+  
+  for (let i = 0; i < taskData.length; i++) {
+    if ("dependencies" in taskData[i]) {
+      taskData[i].dependencies.forEach(dependency => {
+        dotString += `Node${i} -> Node${dependency} [label=\"${i}-depends-on-${dependency}\"]`;
+      });
+    }
+  }
+  dotString += `
     }
   `;
 
