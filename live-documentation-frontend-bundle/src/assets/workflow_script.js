@@ -4,6 +4,8 @@ import 'prismjs/themes/prism-okaidia.min.css';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-verilog.min';
 import cytoscape from 'cytoscape';
+import Viz from 'viz.js';
+import { Module, render } from 'viz.js/full.render.js';
 // }
 
 function createUnderCode(content, lang) {
@@ -162,6 +164,50 @@ function createTaskFlowGraph2(taskData) {
       spacingFactor: 1.5
     }
   });
+}
+
+function createTaskFlowGraph3(taskData) {
+  // DOT language string (your network definition)
+  const dotString = `
+    digraph G {
+      A -> B;
+      B -> C;
+      C -> A;
+    }
+  `;
+
+  // Use Viz.js to render the DOT string into SVG
+  const viz = new Viz({ Module, render });
+  viz.renderSVGElement(dotString)
+    .then(function(svgElement) {
+      const svg = svgElement;
+      document.getElementById("taskGraph").appendChild(svg);
+
+      // Add hover effect to nodes
+      svg.querySelectorAll('g.node').forEach(function(node) {
+
+        // Find the actual shape (polygon, ellipse, etc.)
+        const shape = node.querySelector('polygon, ellipse, circle');
+
+        if (!shape) return;
+
+        // Save the original fill
+        const originalFill = shape.getAttribute('fill') || '#ffffff';
+
+        console.log(`KAPS:SHAPE_INFO:${shape}`);
+        node.addEventListener('mouseenter', function() {
+          // node.style.fill = '#f00'; // Change color on hover
+          shape.setAttribute('fill', 'orange');
+        });
+        node.addEventListener('mouseleave', function() {
+          // node.style.fill = ''; // Reset color when not hovered
+          shape.setAttribute('fill', originalFill);
+        });
+      });
+    })
+    .catch(function(error) {
+      console.error(error);
+    });
 }
 
 function computeTotalAggregateEstimate(taskData, i, visited) {

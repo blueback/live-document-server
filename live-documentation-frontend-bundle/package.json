@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "cytoscape": "^3.33.1",
-    "prismjs": "^1.30.0"
+    "prismjs": "^1.30.0",
+    "viz.js": "^2.1.2"
   }
 }
