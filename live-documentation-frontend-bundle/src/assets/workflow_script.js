@@ -190,6 +190,24 @@ function createTaskFlowGraph3(taskData) {
   const viz = new Viz({ Module, render });
   viz.renderSVGElement(dotString)
     .then(function(svgElement) {
+      const resizeToScreenWidth = true;
+      if (resizeToScreenWidth) {
+        // Get original dimensions
+        const width = svgElement.getAttribute('width');
+        const height = svgElement.getAttribute('height');
+
+        // Remove fixed width/height so it can scale
+        svgElement.removeAttribute('width');
+        svgElement.removeAttribute('height');
+
+        // Set responsive attributes
+        svgElement.setAttribute('viewBox', `0 0 ${parseFloat(width)} ${parseFloat(height)}`);
+        svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svgElement.style.width = '100%';
+        svgElement.style.height = 'auto';
+        svgElement.style.display = 'block';
+      }
+
       const svg = svgElement;
       document.getElementById("taskGraph").appendChild(svg);
 
