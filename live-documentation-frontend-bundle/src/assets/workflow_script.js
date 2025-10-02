@@ -172,13 +172,21 @@ function createTaskFlowGraph3(taskData) {
     digraph G {
   `;
   for (let i = 0; i < taskData.length; i++) {
-    dotString += `Node${i} [label=\"${taskData[i].Title}\\n(${i})\\n(${taskData[i].priority})\", shape=rectangle, color=grey, style=filled];\n`;
+    dotString += `Node${
+      i
+    } [label=\"${
+      taskData[i].Title
+    }\\n(${
+      i
+    })\\n(${
+      taskData[i].priority
+    })\", shape=rectangle, color=grey, style=filled];\n`;
   }
   
   for (let i = 0; i < taskData.length; i++) {
     if ("dependencies" in taskData[i]) {
       taskData[i].dependencies.forEach(dependency => {
-        dotString += `Node${i} -> Node${dependency} [label=\"${i}-depends-on-${dependency}\"]`;
+        dotString += `Node${i} -> Node${dependency};`;
       });
     }
   }
