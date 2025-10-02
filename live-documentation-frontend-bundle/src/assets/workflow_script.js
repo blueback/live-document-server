@@ -170,6 +170,7 @@ function createTaskFlowGraph3(taskData) {
   // DOT language string (your network definition)
   var dotString = `
     digraph G {
+      rankdir=LR;
   `;
   for (let i = 0; i < taskData.length; i++) {
     dotString += `Node${
@@ -198,7 +199,7 @@ function createTaskFlowGraph3(taskData) {
   const viz = new Viz({ Module, render });
   viz.renderSVGElement(dotString)
     .then(function(svgElement) {
-      const resizeToScreenWidth = true;
+      const resizeToScreenWidth = false;
       if (resizeToScreenWidth) {
         // Get original dimensions
         const width = svgElement.getAttribute('width');
@@ -230,7 +231,6 @@ function createTaskFlowGraph3(taskData) {
         // Save the original fill
         const originalFill = shape.getAttribute('fill') || '#ffffff';
 
-        console.log(`KAPS:SHAPE_INFO:${shape}`);
         node.addEventListener('mouseenter', function() {
           // node.style.fill = '#f00'; // Change color on hover
           shape.setAttribute('fill', 'orange');
