@@ -199,7 +199,7 @@ function createTaskFlowGraph3(taskData) {
   const viz = new Viz({ Module, render });
   viz.renderSVGElement(dotString)
     .then(function(svgElement) {
-      const resizeToScreenWidth = false;
+      const resizeToScreenWidth = true;
       if (resizeToScreenWidth) {
         // Get original dimensions
         const width = svgElement.getAttribute('width');
@@ -570,7 +570,7 @@ function fillTaskDataAndDecorate(data) {
     .then(data => {
       console.log(data);
       fillTaskDataAndDecorate(data);
-      createTaskFlowGraph2(data);
+      createTaskFlowGraph3(data);
     })
     .catch(error => console.error('Error fetching data:', error));
 
