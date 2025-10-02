@@ -356,6 +356,46 @@ function addTotalWork(data) {
   }
 }
 
+function computeExpectedCompletionDates(data) {
+  const months = [
+    'Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug',
+    'Sept', 'Oct', 'Nov', 'Dec'
+  ];
+  const currentDate = new Date();
+  console.log(currentDate);
+  for (let i = 0; i < data.length; i++) {
+    if ('expectedCompletionDate' in data[i]) {
+      console.warn(`overwriting expected completion data!!`);
+    }
+    const futureDate = new Date(currentDate);
+    futureDate.setDate(currentDate.getDate()
+      + data[i].remainingAggregateEstimate);
+    // const localDate = now.toLocaleDateString();
+    // const localTime = now.toLocaleTimeString();
+    // const year = now.getFullYear(); // e.g., 2025
+    // const month = now.getMonth();   // 0-indexed, so October is 9
+    // const day = now.getDate();      // Day of the month (1-31)
+    // const hours = now.getHours();   // Hour (0-23)
+    // const minutes = now.getMinutes(); // Minute (0-59)
+    // const seconds = now.getSeconds(); // Second (0-59)
+    const futureYear = futureDate.getFullYear();
+    const futureMonth = futureDate.getMonth();
+    const futureDay = futureDate.getDate();
+    if ('totalBaseEstimate' in data[i]) {
+      data[i].expectedCompletionDate = `${futureDay} ${months[futureMonth]} ${futureYear}`;
+    }
+  }
+}
+
+function printDeadlineDate(deadline) {
+  console.log(deadline);
+  const months = [
+    'Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug',
+    'Sept', 'Oct', 'Nov', 'Dec'
+  ];
+  return `${deadline.date} ${months[deadline.month - 1]} ${deadline.year}`;
+}
+
 function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
@@ -386,6 +426,7 @@ function fillTaskDataAndDecorate(data) {
 
   computeTotalAggregateEstimates(data);
   computeRemainingAggregateEstimates(data);
+  computeExpectedCompletionDates(data);
   
   // Loop through the data and create rows
   for (let i = 0; i < data.length; i++) {
@@ -426,7 +467,9 @@ function fillTaskDataAndDecorate(data) {
     row.appendChild(cellTaskNumber);
   
     const cellTaskDeadline = document.createElement('td');
-    cellTaskDeadline.textContent = item.deadline;
+    if ('deadline' in item) {
+      cellTaskDeadline.textContent = printDeadlineDate(item.deadline);
+    }
     row.appendChild(cellTaskDeadline);
   
     {
