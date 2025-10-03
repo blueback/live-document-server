@@ -348,7 +348,7 @@ function addTotalWork(data) {
   }
   data.push({taskType: "Total Work", Title: "Total Work"});
   data[data.length - 1].dependencies = []
-  console.log(data[data.length - 1]);
+  // console.log(data[data.length - 1]);
   for (let i = 0; i < data.length - 1; i++) {
     if (dependency_counts[i] == 0) {
       data[data.length - 1].dependencies.push(i);
@@ -362,7 +362,7 @@ function computeExpectedCompletionDates(data) {
     'Sept', 'Oct', 'Nov', 'Dec'
   ];
   const currentDate = new Date();
-  console.log(currentDate);
+  // console.log(currentDate);
   for (let i = 0; i < data.length; i++) {
     if ('expectedCompletionDate' in data[i]) {
       console.warn(`overwriting expected completion data!!`);
@@ -382,13 +382,17 @@ function computeExpectedCompletionDates(data) {
     const futureMonth = futureDate.getMonth();
     const futureDay = futureDate.getDate();
     if ('totalBaseEstimate' in data[i]) {
-      data[i].expectedCompletionDate = `${futureDay} ${months[futureMonth]} ${futureYear}`;
+      data[i].expectedCompletionDate = {
+        "date": futureDay,
+        "month": futureMonth,
+        "year": futureYear
+      };
     }
   }
 }
 
 function printDeadlineDate(deadline) {
-  console.log(deadline);
+  // console.log(deadline);
   const months = [
     'Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug',
     'Sept', 'Oct', 'Nov', 'Dec'
@@ -469,6 +473,7 @@ function fillTaskDataAndDecorate(data) {
     const cellTaskDeadline = document.createElement('td');
     if ('deadline' in item) {
       cellTaskDeadline.textContent = printDeadlineDate(item.deadline);
+      cellTaskDeadline.setAttribute("align", "center");
     }
     row.appendChild(cellTaskDeadline);
   
@@ -521,7 +526,9 @@ function fillTaskDataAndDecorate(data) {
     }
 
     const cellExpectedCompletionDate = document.createElement('td');
-    cellExpectedCompletionDate.textContent = item.expectedCompletionDate;
+    if ("expectedCompletionDate" in item) {
+      cellExpectedCompletionDate.textContent = printDeadlineDate(item.expectedCompletionDate);
+    }
     cellExpectedCompletionDate.setAttribute("align", "center");
     row.appendChild(cellExpectedCompletionDate);
   
@@ -611,7 +618,7 @@ function fillTaskDataAndDecorate(data) {
   fetch("/workflow_data/taskData.json")
     .then(response => response.json())
     .then(data => {
-      console.log(data);
+      // console.log(data);
       fillTaskDataAndDecorate(data);
       createTaskFlowGraph3(data);
     })
