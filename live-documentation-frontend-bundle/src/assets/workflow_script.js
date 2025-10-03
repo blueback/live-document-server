@@ -203,7 +203,7 @@ function createTaskFlowGraph3(taskData) {
     } [label=\"${
       taskData[i].Title
     }\\n(${
-      i
+      reverseMapSortedIndices[i]
     })\\n(${
       taskData[i].priority
     })\", shape=rectangle, color=grey, style=filled];\n`;
