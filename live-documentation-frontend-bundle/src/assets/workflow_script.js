@@ -583,7 +583,7 @@ function fillTaskDataAndDecorate(data) {
   
     const cellTaskSerialNumber = document.createElement('td');
     const preTaskSerialNumber = createUnderCode(i, "language-verilog");
-    cellTaskSerialNumber.setAttribute("title", item.Title);
+    cellTaskSerialNumber.setAttribute("title", `task id ${sortedIndices[i]}: ${item.Title}`);
     cellTaskSerialNumber.appendChild(preTaskSerialNumber);
     row.appendChild(cellTaskSerialNumber);
     
@@ -592,16 +592,16 @@ function fillTaskDataAndDecorate(data) {
     const taskTitle = document.createElement('details');
     const taskTitleSummary = document.createElement('summary');
     taskTitleSummary.textContent = item.taskType;
-    cellTaskType.setAttribute("title", item.Title);
+    cellTaskType.setAttribute("title", `task id ${sortedIndices[i]}: ${item.Title}`);
     if ("description" in item) {
       const preTaskTitle =
-          createUnderCode("# " + item.Title + "\n\n\"\"\"\n" +
+          createUnderCode("# " + `task id:${sortedIndices[i]}` + "\n# " + item.Title + "\n\n\"\"\"\n" +
                               item.description.join("\n") + "\n\"\"\"",
                           "language-python");
       taskTitle.appendChild(preTaskTitle);
     } else {
       const preTaskTitle =
-          createUnderCode("# " + item.Title, "language-python");
+          createUnderCode("# " + `task id:${sortedIndices[i]}` + "\n# " + item.Title, "language-python");
       taskTitle.appendChild(preTaskTitle);
     }
     taskTitle.appendChild(taskTitleSummary);
@@ -718,7 +718,7 @@ function fillTaskDataAndDecorate(data) {
         codeTaskDependency.className = "language-verilog";
         codeTaskDependency.textContent = reverseMapSortedIndices[dependency];
         preTaskDependency.appendChild(codeTaskDependency);
-        cellTaskDependency.setAttribute("title", data[dependency].Title);
+        cellTaskDependency.setAttribute("title", `task id ${dependency}: ${data[dependency].Title}`);
         cellTaskDependency.appendChild(preTaskDependency);
         row.appendChild(cellTaskDependency);
       });
