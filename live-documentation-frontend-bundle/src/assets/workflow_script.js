@@ -384,7 +384,7 @@ function computeExpectedCompletionDates(data) {
     if ('totalBaseEstimate' in data[i]) {
       data[i].expectedCompletionDate = {
         "date": futureDay,
-        "month": futureMonth,
+        "month": futureMonth + 1,
         "year": futureYear
       };
     }
@@ -398,6 +398,43 @@ function printDeadlineDate(deadline) {
     'Sept', 'Oct', 'Nov', 'Dec'
   ];
   return `${deadline.date} ${months[deadline.month - 1]} ${deadline.year}`;
+}
+
+function calculateDaysBetweenDates(unformatted_date1, unformatted_date2) {
+  const date1 = `${unformatted_date1.year}-${unformatted_date1.month}-${unformatted_date1.date}`; // format: YYYY-MM-DD
+  const date2 = `${unformatted_date2.year}-${unformatted_date2.month}-${unformatted_date2.date}`; // format: YYYY-MM-DD
+
+  // Convert the date strings into Date objects
+  const d1 = new Date(date1); 
+  const d2 = new Date(date2);
+  
+  // Ensure that both dates are valid
+  if (isNaN(d1) || isNaN(d2)) {
+      return 'Invalid date format';
+  }
+  
+  if (d2 < d1) {
+    console.warn(`Date of deadline is smaller than expected completion date`);
+  }
+
+  // Get the difference in milliseconds
+  const timeDifference = d2 - d1;
+  
+  // Convert the difference from milliseconds to days (1000ms = 1 second, 60 seconds = 1 minute, 60 minutes = 1 hour, 24 hours = 1 day)
+  var dayDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+  if (d2 < d1) {
+    dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+  }
+  
+  return dayDifference;
+}
+
+function computeCompletionMarginInDays(data) {
+  for (let i = 0; i < data.length; i++) {
+    if ("expectedCompletionDate" in data[i] && "deadline" in data[i]) {
+      data[i].completionMarginInDays = calculateDaysBetweenDates(data[i].expectedCompletionDate, data[i].deadline);
+    }
+  }
 }
 
 function fillTaskDataAndDecorate(data) {
@@ -431,6 +468,7 @@ function fillTaskDataAndDecorate(data) {
   computeTotalAggregateEstimates(data);
   computeRemainingAggregateEstimates(data);
   computeExpectedCompletionDates(data);
+  computeCompletionMarginInDays(data);
   
   // Loop through the data and create rows
   for (let i = 0; i < data.length; i++) {
@@ -531,6 +569,17 @@ function fillTaskDataAndDecorate(data) {
     }
     cellExpectedCompletionDate.setAttribute("align", "center");
     row.appendChild(cellExpectedCompletionDate);
+  
+    const cellCompletionMarginInDays = document.createElement('td');
+    if ("completionMarginInDays" in item) {
+      if (item.completionMarginInDays < 0) {
+        cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (overdue)`;
+      } else {
+        cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (early)`;
+      }
+    }
+    cellCompletionMarginInDays.setAttribute("align", "center");
+    row.appendChild(cellCompletionMarginInDays);
   
     const cellTaskPriority = document.createElement('td');
     cellTaskPriority.textContent = item.priority;
