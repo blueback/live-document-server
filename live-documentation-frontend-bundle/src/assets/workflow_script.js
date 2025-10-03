@@ -270,50 +270,6 @@ function checkDependenciesHaveTotalBaseEstimate(taskData, i, visited) {
   return 1;
 }
 
-function computeTotalAggregateEstimate(taskData, i, visited) {
-  if (visited[i] != 0) {
-    return 0;
-  }
-
-  visited[i] = 1;
-
-  var currNodeTotalAggregateEstimate = 0;
-  if ("totalBaseEstimate" in taskData[i]) {
-    currNodeTotalAggregateEstimate = taskData[i].totalBaseEstimate;
-  } else {
-    console.warn("Total base estimate is not present, so assuming 0(check your taskData.json)!!");
-    currNodeTotalAggregateEstimate = 0;
-  }
-  
-  if ("dependencies" in taskData[i]) {
-    for (let j = 0; j < taskData[i].dependencies.length; j++) {
-      currNodeTotalAggregateEstimate +=
-        computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
-    }
-  }
-
-  return currNodeTotalAggregateEstimate;
-}
-
-function computeTotalAggregateEstimates(taskData) {
-  var visited = [];
-  for (let i = 0; i < taskData.length; i++) {
-    visited.push(0);
-  }
-  for (let i = 0; i < taskData.length; i++) {
-    for (let i = 0; i < taskData.length; i++) {
-      visited[i] = 0;
-    }
-    taskData[i].totalAggregateEstimate =
-      computeTotalAggregateEstimate(taskData, i, visited);
-    for (let i = 0; i < taskData.length; i++) {
-      visited[i] = 0;
-    }
-    taskData[i].totalAggregateEstimateHasAssumptions =
-      checkDependenciesHaveTotalBaseEstimate(taskData, i, visited); 
-  }
-}
-
 function checkDependenciesHaveRemainingBaseEstimate(taskData, i, visited) {
   if (visited[i] != 0) {
     return 1;
@@ -345,6 +301,64 @@ function checkDependenciesHaveRemainingBaseEstimate(taskData, i, visited) {
   }
 
   return 1;
+}
+
+function checkAssumptionsOnEstimates(taskData) {
+  var visited = [];
+  for (let i = 0; i < taskData.length; i++) {
+    visited.push(0);
+  }
+  for (let i = 0; i < taskData.length; i++) {
+    for (let j = 0; j < taskData.length; j++) {
+      visited[j] = 0;
+    }
+    taskData[i].totalAggregateEstimateHasAssumptions =
+      (checkDependenciesHaveTotalBaseEstimate(taskData, i, visited) == 0);
+    for (let j = 0; j < taskData.length; j++) {
+      visited[j] = 0;
+    }
+    taskData[i].remainingAggregateEstimateHasAssumptions =
+      (checkDependenciesHaveRemainingBaseEstimate(taskData, i, visited) == 0);
+  }
+}
+
+function computeTotalAggregateEstimate(taskData, i, visited) {
+  if (visited[i] != 0) {
+    return 0;
+  }
+
+  visited[i] = 1;
+
+  var currNodeTotalAggregateEstimate = 0;
+  if ("totalBaseEstimate" in taskData[i]) {
+    currNodeTotalAggregateEstimate = taskData[i].totalBaseEstimate;
+  } else {
+    console.warn("Total base estimate is not present, so assuming 0(check your taskData.json)!!");
+    currNodeTotalAggregateEstimate = 0;
+  }
+  
+  if ("dependencies" in taskData[i]) {
+    for (let j = 0; j < taskData[i].dependencies.length; j++) {
+      currNodeTotalAggregateEstimate +=
+        computeTotalAggregateEstimate(taskData, taskData[i].dependencies[j], visited);
+    }
+  }
+
+  return currNodeTotalAggregateEstimate;
+}
+
+function computeTotalAggregateEstimates(taskData) {
+  var visited = [];
+  for (let i = 0; i < taskData.length; i++) {
+    visited.push(0);
+  }
+  for (let i = 0; i < taskData.length; i++) {
+    for (let j = 0; j < taskData.length; j++) {
+      visited[j] = 0;
+    }
+    taskData[i].totalAggregateEstimate =
+      computeTotalAggregateEstimate(taskData, i, visited);
+  }
 }
 
 function computeRemainingAggregateEstimate(taskData, i, visited) {
@@ -392,16 +406,11 @@ function computeRemainingAggregateEstimates(taskData) {
     visited.push(0);
   }
   for (let i = 0; i < taskData.length; i++) {
-    for (let i = 0; i < taskData.length; i++) {
-      visited[i] = 0;
+    for (let j = 0; j < taskData.length; j++) {
+      visited[j] = 0;
     }
     taskData[i].remainingAggregateEstimate =
       computeRemainingAggregateEstimate(taskData, i, visited);
-    for (let i = 0; i < taskData.length; i++) {
-      visited[i] = 0;
-    }
-    taskData[i].remainingAggregateEstimateHasAssumptions =
-      checkDependenciesHaveRemainingBaseEstimate(taskData, i, visited); 
   }
 }
 
@@ -537,6 +546,7 @@ function fillTaskDataAndDecorate(data) {
   // Should not sort as it could mess up the dependencies
   //data.sort((a, b) => a.priority - b.priority);
 
+  checkAssumptionsOnEstimates(data);
   computeTotalAggregateEstimates(data);
   computeRemainingAggregateEstimates(data);
   computeExpectedCompletionDates(data);
@@ -625,12 +635,20 @@ function fillTaskDataAndDecorate(data) {
 
     {
       const cellTaskTotalAggrEstimate = document.createElement('td');
-      cellTaskTotalAggrEstimate.textContent = item.totalAggregateEstimate;
+      if ("totalAggregateEstimateHasAssumptions" in item && item.totalAggregateEstimateHasAssumptions == 1) {
+        cellTaskTotalAggrEstimate.textContent = `${item.totalAggregateEstimate} (assumptions)`;
+      } else {
+        cellTaskTotalAggrEstimate.textContent = item.totalAggregateEstimate;
+      }
       cellTaskTotalAggrEstimate.setAttribute("align", "center");
       row.appendChild(cellTaskTotalAggrEstimate);
   
       const cellTaskRemainingAggrEstimate = document.createElement('td');
-      cellTaskRemainingAggrEstimate.textContent = item.remainingAggregateEstimate;
+      if ("remainingAggregateEstimateHasAssumptions" in item && item.remainingAggregateEstimateHasAssumptions == 1) {
+        cellTaskRemainingAggrEstimate.textContent = `${item.remainingAggregateEstimate} (assumptions)`;
+      } else {
+        cellTaskRemainingAggrEstimate.textContent = item.remainingAggregateEstimate;
+      }
       cellTaskRemainingAggrEstimate.setAttribute("align", "center");
       row.appendChild(cellTaskRemainingAggrEstimate);
     }
