@@ -551,10 +551,35 @@ function fillTaskDataAndDecorate(data) {
   computeRemainingAggregateEstimates(data);
   computeExpectedCompletionDates(data);
   computeCompletionMarginInDays(data);
+
+  var sortedIndices = [];
+  for (let i = 0; i < data.length - 1; i++) {
+    sortedIndices.push(i);
+  }
+  sortedIndices.sort((a, b) => {
+    if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
+      return data[a].completionMarginInDays - data[b].completionMarginInDays;
+    } else if ("completionMarginInDays" in data[a]) {
+      return data[a].completionMarginInDays;
+    } else if ("completionMarginInDays" in data[b]) {
+      return data[b].completionMarginInDays;
+    } else {
+      return 0;
+    }
+  });
+  sortedIndices.push(data.length - 1);
+
+  var reverseMapSortedIndices = [];
+  for (let i = 0; i < data.length - 1; i++) {
+    reverseMapSortedIndices.push(0);
+  }
+  for (let i = 0; i < sortedIndices.length - 1; i++) {
+    reverseMapSortedIndices[sortedIndices[i]] = i;
+  }
   
   // Loop through the data and create rows
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
+  for (let i = 0; i < sortedIndices.length; i++) {
+    const item = data[sortedIndices[i]];
     // Create a new row
     const row = document.createElement('tr');
   
@@ -682,7 +707,7 @@ function fillTaskDataAndDecorate(data) {
         const preTaskDependency = document.createElement('pre');
         const codeTaskDependency = document.createElement('code');
         codeTaskDependency.className = "language-verilog";
-        codeTaskDependency.textContent = dependency;
+        codeTaskDependency.textContent = reverseMapSortedIndices[dependency];
         preTaskDependency.appendChild(codeTaskDependency);
         cellTaskDependency.setAttribute("title", data[dependency].Title);
         cellTaskDependency.appendChild(preTaskDependency);
