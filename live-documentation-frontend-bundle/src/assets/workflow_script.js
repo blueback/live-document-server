@@ -198,6 +198,18 @@ function createTaskFlowGraph3(taskData) {
       rankdir=LR;
   `;
   for (let i = 0; i < taskData.length; i++) {
+    var color = "lightgrey";
+    if ("completionMarginInDays" in taskData[i]) {
+      if (taskData[i].completionMarginInDays < 0) {
+        color = 'red';
+      } else if (taskData[i].completionMarginInDays > 0) {
+        color = 'green';
+      } else {
+        color = 'orange';
+      }
+    } else {
+      color = 'lightgrey';
+    }
     dotString += `Node${
       reverseMapSortedIndices[i]
     } [label=\"${
@@ -206,7 +218,9 @@ function createTaskFlowGraph3(taskData) {
       reverseMapSortedIndices[i]
     })\\n(${
       taskData[i].priority
-    })\", shape=rectangle, color=grey, style=filled];\n`;
+    })\", shape=rectangle, color=${
+      color
+    }, style=filled];\n`;
   }
   
   for (let i = 0; i < taskData.length; i++) {
@@ -258,7 +272,7 @@ function createTaskFlowGraph3(taskData) {
 
         node.addEventListener('mouseenter', function() {
           // node.style.fill = '#f00'; // Change color on hover
-          shape.setAttribute('fill', 'orange');
+          shape.setAttribute('fill', 'skyblue');
         });
         node.addEventListener('mouseleave', function() {
           // node.style.fill = ''; // Reset color when not hovered
@@ -642,6 +656,8 @@ function fillTaskDataAndDecorate(data) {
     if ('deadline' in item) {
       cellTaskDeadline.textContent = printDeadlineDate(item.deadline);
       cellTaskDeadline.setAttribute("align", "center");
+    } else {
+      cellTaskDeadline.style.backgroundColor = 'pink';
     }
     row.appendChild(cellTaskDeadline);
   
@@ -651,6 +667,7 @@ function fillTaskDataAndDecorate(data) {
         cellTaskTotalBaseEstimate.textContent = item.totalBaseEstimate;
       } else {
         console.warn(`Total base estimate is not present for ${i}th task!!`);
+        cellTaskTotalBaseEstimate.style.backgroundColor = 'skyblue';
         cellTaskTotalBaseEstimate.textContent = "0(default)";
       }
       cellTaskTotalBaseEstimate.setAttribute("align", "center");
@@ -662,15 +679,18 @@ function fillTaskDataAndDecorate(data) {
           if (item.remainingBaseEstimate > item.totalBaseEstimate) {
             console.warn(`Remaining Base estimate should be less that total Base estimate for ${i}th task!!`);
             cellTaskRemainingBaseEstimate.textContent = `${cellTaskTotalBaseEstimate.textContent}(adjusted)`;
+            cellTaskRemainingBaseEstimate.style.backgroundColor = 'skyblue';
           } else {
             cellTaskRemainingBaseEstimate.textContent = item.remainingBaseEstimate;
           }
         } else {
           console.warn(`Remaining Base estimate should be less that total Base estimate for ${i}th task!!`);
           cellTaskRemainingBaseEstimate.textContent = `${cellTaskTotalBaseEstimate.textContent}(adjusted)`;
+          cellTaskRemainingBaseEstimate.style.backgroundColor = 'skyblue';
         }
       } else {
         console.warn(`Remaining base estimate is not present for ${i}th task!!`);
+        cellTaskRemainingBaseEstimate.style.backgroundColor = 'skyblue';
         if ("totalBaseEstimate" in item) {
           cellTaskRemainingBaseEstimate.textContent = `${cellTaskTotalBaseEstimate.textContent}(default)`;
         } else {
