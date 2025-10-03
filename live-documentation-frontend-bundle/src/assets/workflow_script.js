@@ -525,7 +525,8 @@ function fillTaskDataAndDecorate(data) {
     taskSubHeadingRow.appendChild(dependencySubHeading);
   }
 
-  data.sort((a, b) => a.priority - b.priority);
+  // Should not sort as it could mess up the dependencies
+  //data.sort((a, b) => a.priority - b.priority);
 
   computeTotalAggregateEstimates(data);
   computeRemainingAggregateEstimates(data);
