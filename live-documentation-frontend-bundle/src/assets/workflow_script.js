@@ -695,9 +695,12 @@ function fillTaskDataAndDecorate(data) {
       if (item.completionMarginInDays < 0) {
         cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (overdue)`;
         cellCompletionMarginInDays.style.backgroundColor = 'red';
-      } else {
+      } else if (item.completionMarginInDays > 0) {
         cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (early)`;
         cellCompletionMarginInDays.style.backgroundColor = 'green';
+      } else {
+        cellCompletionMarginInDays.textContent = `${item.completionMarginInDays}`;
+        cellCompletionMarginInDays.style.backgroundColor = 'orange';
       }
     } else {
       cellCompletionMarginInDays.style.backgroundColor = 'lightgrey';
