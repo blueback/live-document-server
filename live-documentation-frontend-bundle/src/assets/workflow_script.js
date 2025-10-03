@@ -167,6 +167,31 @@ function createTaskFlowGraph2(taskData) {
 }
 
 function createTaskFlowGraph3(taskData) {
+  var sortedIndices = [];
+  for (let i = 0; i < taskData.length - 1; i++) {
+    sortedIndices.push(i);
+  }
+  sortedIndices.sort((a, b) => {
+    if ("completionMarginInDays" in taskData[a] && "completionMarginInDays" in taskData[b]) {
+      return taskData[a].completionMarginInDays - taskData[b].completionMarginInDays;
+    } else if ("completionMarginInDays" in taskData[a]) {
+      return taskData[a].completionMarginInDays;
+    } else if ("completionMarginInDays" in taskData[b]) {
+      return taskData[b].completionMarginInDays;
+    } else {
+      return 0;
+    }
+  });
+  sortedIndices.push(taskData.length - 1);
+
+  var reverseMapSortedIndices = [];
+  for (let i = 0; i < taskData.length - 1; i++) {
+    reverseMapSortedIndices.push(0);
+  }
+  for (let i = 0; i < sortedIndices.length - 1; i++) {
+    reverseMapSortedIndices[sortedIndices[i]] = i;
+  }
+  
   // DOT language string (your network definition)
   var dotString = `
     digraph G {
@@ -174,7 +199,7 @@ function createTaskFlowGraph3(taskData) {
   `;
   for (let i = 0; i < taskData.length; i++) {
     dotString += `Node${
-      i
+      reverseMapSortedIndices[i]
     } [label=\"${
       taskData[i].Title
     }\\n(${
@@ -187,7 +212,7 @@ function createTaskFlowGraph3(taskData) {
   for (let i = 0; i < taskData.length; i++) {
     if ("dependencies" in taskData[i]) {
       taskData[i].dependencies.forEach(dependency => {
-        dotString += `Node${i} -> Node${dependency};`;
+        dotString += `Node${reverseMapSortedIndices[i]} -> Node${reverseMapSortedIndices[dependency]};`;
       });
     }
   }
