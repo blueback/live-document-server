@@ -321,9 +321,18 @@ function checkDependenciesHaveRemainingBaseEstimate(taskData, i, visited) {
 
   visited[i] = 1;
 
-  if ("totalBaseEstimate" in taskData[i]) {
+  if ("remainingBaseEstimate" in taskData[i]) {
+    if ("totalBaseEstimate" in taskData[i]) {
+      if (taskData[i].remainingBaseEstimate > taskData[i].totalBaseEstimate) {
+        console.warn("Remaining Base estimate should be less that total Base estimate(check your taskData.json)!!");
+        return 0;
+      }
+    } else {
+      console.warn("Remaining Base estimate should be less that total Base estimate(check your taskData.json)!!");
+      return 0;
+    }
   } else {
-    console.warn("Total base estimate is not present, so assuming 0(check your taskData.json)!!");
+    console.warn("Remaining base estimate is not present, so assuming same as total base estimate(check your taskData.json)!!");
     return 0;
   }
   
