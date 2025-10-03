@@ -391,7 +391,7 @@ function computeRemainingAggregateEstimates(taskData) {
     for (let i = 0; i < taskData.length; i++) {
       visited[i] = 0;
     }
-    taskData[i].totalAggregateEstimateHasAssumptions =
+    taskData[i].remainingAggregateEstimateHasAssumptions =
       checkDependenciesHaveRemainingBaseEstimate(taskData, i, visited); 
   }
 }
