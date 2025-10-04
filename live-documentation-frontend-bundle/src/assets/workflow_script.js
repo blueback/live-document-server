@@ -570,6 +570,37 @@ function computeCompletionMarginInDays(data) {
   }
 }
 
+function setSubtaskDeadlinesHelper(taskData, i, visited) {
+  if (visited[i] != 0) {
+    return;
+  }
+
+  visited[i] = 1;
+  if ("dependencies" in taskData[i]) {
+    for (let j = 0; j < taskData[i].dependencies.length; j++) {
+      if ("deadline" in taskData[i]) {
+        if ("deadline" in taskData[taskData[i].dependencies[j]]) {
+          // deadline already exists
+        } else {
+          taskData[taskData[i].dependencies[j]].deadline = taskData[i].deadline;
+          taskData[taskData[i].dependencies[j]].deadlineSetFromParent = 1;
+        }
+      }
+      setSubtaskDeadlinesHelper(taskData, taskData[i].dependencies[j], visited);
+    }
+  }
+}
+
+function setSubtaskDeadlines(taskData) {
+  var visited = [];
+  for (let i = 0; i < taskData.length; i++) {
+    visited.push(0);
+  }
+  for (let i = 0; i < taskData.length - 1; i++) {
+    setSubtaskDeadlinesHelper(taskData, i, visited);
+  }
+}
+
 function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
@@ -599,6 +630,7 @@ function fillTaskDataAndDecorate(data) {
   // Should not sort as it could mess up the dependencies
   //data.sort((a, b) => a.priority - b.priority);
 
+  setSubtaskDeadlines(data);
   checkAssumptionsOnEstimates(data);
   computeTotalAggregateEstimates(data);
   computeRemainingAggregateEstimates(data);
@@ -670,8 +702,15 @@ function fillTaskDataAndDecorate(data) {
   
     const cellTaskDeadline = document.createElement('td');
     if ('deadline' in item) {
-      cellTaskDeadline.textContent = printDeadlineDate(item.deadline);
-      cellTaskDeadline.setAttribute("align", "center");
+      if ('deadlineSetFromParent' in item && item.deadlineSetFromParent == 1) {
+        cellTaskDeadline.textContent = `${printDeadlineDate(item.deadline)}\n(assumed)`;
+        cellTaskDeadline.setAttribute("align", "center");
+        cellTaskDeadline.style.backgroundColor = '#FFF4F2'; // very light pink
+        // cellTaskDeadline.style.backgroundColor = '#FFB6C1'; pale pink
+      } else {
+        cellTaskDeadline.textContent = printDeadlineDate(item.deadline);
+        cellTaskDeadline.setAttribute("align", "center");
+      }
     } else {
       cellTaskDeadline.style.backgroundColor = 'pink';
     }
