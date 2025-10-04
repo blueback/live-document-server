@@ -475,6 +475,22 @@ function addTotalWork(data) {
   }
 }
 
+function addBusinessDays(currentDate, estimatedDays) {
+  const resultDate = new Date(currentDate);
+  let daysAdded = 0;
+
+  while (daysAdded < estimatedDays) {
+    resultDate.setDate(resultDate.getDate() + 1);
+    
+    // Check if the current date is a weekend (Saturday or Sunday)
+    if (resultDate.getDay() !== 0 && resultDate.getDay() !== 6) {
+      daysAdded++;
+    }
+  }
+
+  return resultDate;
+}
+
 function computeExpectedCompletionDates(data) {
   const months = [
     'Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug',
@@ -486,9 +502,9 @@ function computeExpectedCompletionDates(data) {
     if ('expectedCompletionDate' in data[i]) {
       console.warn(`overwriting expected completion data!!`);
     }
-    const futureDate = new Date(currentDate);
-    futureDate.setDate(currentDate.getDate()
-      + data[i].remainingAggregateEstimate);
+    const futureDate = addBusinessDays(
+      currentDate,
+      data[i].remainingAggregateEstimate);
     // const localDate = now.toLocaleDateString();
     // const localTime = now.toLocaleTimeString();
     // const year = now.getFullYear(); // e.g., 2025
