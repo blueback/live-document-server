@@ -680,9 +680,9 @@ function fillTaskDataAndDecorate(data) {
     if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
       return data[a].completionMarginInDays - data[b].completionMarginInDays;
     } else if ("completionMarginInDays" in data[a]) {
-      return data[a].completionMarginInDays;
+      return data[a].completionMarginInDays - (-365);
     } else if ("completionMarginInDays" in data[b]) {
-      return data[b].completionMarginInDays;
+      return (-365) - data[b].completionMarginInDays;
     } else {
       return 0;
     }
