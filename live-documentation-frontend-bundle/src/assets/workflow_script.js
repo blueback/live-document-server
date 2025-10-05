@@ -601,6 +601,40 @@ function setSubtaskDeadlines(taskData) {
   }
 }
 
+function setTotalWorkDeadline(taskData) {
+  var totalWorkIndex = taskData.length - 1;
+  if ("dependencies" in taskData[totalWorkIndex]) {
+    for (let j = 0; j < taskData[totalWorkIndex].dependencies.length; j++) {
+      if ("deadline" in taskData[taskData[totalWorkIndex].dependencies[j]]) {
+        if ("deadline" in taskData[totalWorkIndex]) {
+          const d1a = taskData[totalWorkIndex].deadline;
+          const d2a = taskData[taskData[totalWorkIndex].dependencies[j]].deadline;
+
+          const d1b = `${d1a.year}-${d1a.month}-${d1a.date}`; // format: YYYY-MM-DD
+          const d2b = `${d2a.year}-${d2a.month}-${d2a.date}`; // format: YYYY-MM-DD
+
+          // Convert the date strings into Date objects
+          const d1 = new Date(d1b); 
+          const d2 = new Date(d2b);
+          
+          // Ensure that both dates are valid
+          if (isNaN(d1) || isNaN(d2)) {
+            return 'Invalid date format';
+          }
+  
+          if (d1 < d2) {
+            taskData[totalWorkIndex].deadline =
+              taskData[taskData[totalWorkIndex].dependencies[j]].deadline;
+          }
+        } else {
+          taskData[totalWorkIndex].deadline =
+            taskData[taskData[totalWorkIndex].dependencies[j]].deadline;
+        }
+      }
+    }
+  }
+}
+
 function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
@@ -631,6 +665,7 @@ function fillTaskDataAndDecorate(data) {
   //data.sort((a, b) => a.priority - b.priority);
 
   setSubtaskDeadlines(data);
+  // setTotalWorkDeadline(data); // currently not showing this(RETHINK)
   checkAssumptionsOnEstimates(data);
   computeTotalAggregateEstimates(data);
   computeRemainingAggregateEstimates(data);
