@@ -677,14 +677,34 @@ function fillTaskDataAndDecorate(data) {
     sortedIndices.push(i);
   }
   sortedIndices.sort((a, b) => {
-    if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
-      return data[a].completionMarginInDays - data[b].completionMarginInDays;
-    } else if ("completionMarginInDays" in data[a]) {
-      return data[a].completionMarginInDays - (-365);
-    } else if ("completionMarginInDays" in data[b]) {
-      return (-365) - data[b].completionMarginInDays;
+    const aFinished = (data[a].remainingAggregateEstimateHasAssumptions == 0) &&
+      (data[a].remainingAggregateEstimate == 0);
+    const bFinished = (data[b].remainingAggregateEstimateHasAssumptions == 0) &&
+      (data[b].remainingAggregateEstimate == 0);
+    if (aFinished && bFinished) {
+      if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
+        return - (data[a].completionMarginInDays - data[b].completionMarginInDays);
+      } else if ("completionMarginInDays" in data[a]) {
+        return - (data[a].completionMarginInDays - (-365));
+      } else if ("completionMarginInDays" in data[b]) {
+        return - ((-365) - data[b].completionMarginInDays);
+      } else {
+        return 0;
+      }
+    } else if (aFinished) {
+      return (365) - data[b].completionMarginInDays;
+    } else if (bFinished) {
+      return data[a].completionMarginInDays - (365);
     } else {
-      return 0;
+      if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
+        return data[a].completionMarginInDays - data[b].completionMarginInDays;
+      } else if ("completionMarginInDays" in data[a]) {
+        return data[a].completionMarginInDays - (-365);
+      } else if ("completionMarginInDays" in data[b]) {
+        return (-365) - data[b].completionMarginInDays;
+      } else {
+        return 0;
+      }
     }
   });
   sortedIndices.push(data.length - 1);
@@ -819,7 +839,11 @@ function fillTaskDataAndDecorate(data) {
         cellExpectedCompletionDate.textContent = `${printDeadlineDate(item.expectedCompletionDate)} (assumed)`;
         cellExpectedCompletionDate.style.backgroundColor = 'skyblue';
       } else {
-        cellExpectedCompletionDate.textContent = printDeadlineDate(item.expectedCompletionDate);
+        const isFinished = (item.remainingAggregateEstimateHasAssumptions == 0) &&
+          (item.remainingAggregateEstimate == 0);
+        if (!isFinished) {
+          cellExpectedCompletionDate.textContent = printDeadlineDate(item.expectedCompletionDate);
+        }
       }
     }
     cellExpectedCompletionDate.setAttribute("align", "center");
@@ -828,8 +852,13 @@ function fillTaskDataAndDecorate(data) {
     const cellCompletionMarginInDays = document.createElement('td');
     if ("completionMarginInDays" in item) {
       if (item.completionMarginInDays < 0) {
-        cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (overdue)`;
-        cellCompletionMarginInDays.style.backgroundColor = 'red';
+        if (item.remainingAggregateEstimate == 0) {
+          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (completed)`;
+          row.style.backgroundColor = 'lightgreen';
+        } else {
+          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (overdue)`;
+          cellCompletionMarginInDays.style.backgroundColor = 'red';
+        }
       } else if (item.completionMarginInDays > 0) {
         cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (early)`;
         cellCompletionMarginInDays.style.backgroundColor = 'green';
