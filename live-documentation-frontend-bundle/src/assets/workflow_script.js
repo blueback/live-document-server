@@ -833,14 +833,15 @@ function fillTaskDataAndDecorate(data) {
       row.appendChild(cellTaskRemainingAggrEstimate);
     }
 
+    const isFinished = (item.remainingAggregateEstimateHasAssumptions == 0) &&
+      (item.remainingAggregateEstimate == 0);
+
     const cellExpectedCompletionDate = document.createElement('td');
     if ("expectedCompletionDate" in item) {
       if ("remainingAggregateEstimateHasAssumptions" in item && item.remainingAggregateEstimateHasAssumptions == 1) {
         cellExpectedCompletionDate.textContent = `${printDeadlineDate(item.expectedCompletionDate)} (assumed)`;
         cellExpectedCompletionDate.style.backgroundColor = 'skyblue';
       } else {
-        const isFinished = (item.remainingAggregateEstimateHasAssumptions == 0) &&
-          (item.remainingAggregateEstimate == 0);
         if (!isFinished) {
           cellExpectedCompletionDate.textContent = printDeadlineDate(item.expectedCompletionDate);
         }
@@ -850,24 +851,24 @@ function fillTaskDataAndDecorate(data) {
     row.appendChild(cellExpectedCompletionDate);
   
     const cellCompletionMarginInDays = document.createElement('td');
-    if ("completionMarginInDays" in item) {
-      if (item.completionMarginInDays < 0) {
-        if (item.remainingAggregateEstimate == 0) {
-          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (completed)`;
-          row.style.backgroundColor = 'lightgreen';
-        } else {
+    if (isFinished) {
+      cellCompletionMarginInDays.textContent = `${-item.completionMarginInDays} (completed)`;
+      row.style.backgroundColor = 'lightgreen';
+    } else {
+      if ("completionMarginInDays" in item) {
+        if (item.completionMarginInDays < 0) {
           cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (overdue)`;
           cellCompletionMarginInDays.style.backgroundColor = 'red';
+        } else if (item.completionMarginInDays > 0) {
+          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (early)`;
+          cellCompletionMarginInDays.style.backgroundColor = 'green';
+        } else {
+          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays}`;
+          cellCompletionMarginInDays.style.backgroundColor = 'orange';
         }
-      } else if (item.completionMarginInDays > 0) {
-        cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (early)`;
-        cellCompletionMarginInDays.style.backgroundColor = 'green';
       } else {
-        cellCompletionMarginInDays.textContent = `${item.completionMarginInDays}`;
-        cellCompletionMarginInDays.style.backgroundColor = 'orange';
+        cellCompletionMarginInDays.style.backgroundColor = 'lightgrey';
       }
-    } else {
-      cellCompletionMarginInDays.style.backgroundColor = 'lightgrey';
     }
     cellCompletionMarginInDays.setAttribute("align", "center");
     row.appendChild(cellCompletionMarginInDays);
