@@ -220,17 +220,24 @@ function createTaskFlowGraph3(taskData) {
       rankdir=LR;
   `;
   for (let i = 0; i < taskData.length; i++) {
+    const isFinished = (taskData[i].remainingAggregateEstimateHasAssumptions == 0) &&
+      (taskData[i].remainingAggregateEstimate == 0);
+
     var color = "lightgrey";
-    if ("completionMarginInDays" in taskData[i]) {
-      if (taskData[i].completionMarginInDays < 0) {
-        color = 'red';
-      } else if (taskData[i].completionMarginInDays > 0) {
-        color = 'green';
-      } else {
-        color = 'orange';
-      }
+    if (isFinished) {
+      color = '\"#90EE90\"';
     } else {
-      color = 'lightgrey';
+      if ("completionMarginInDays" in taskData[i]) {
+        if (taskData[i].completionMarginInDays < 0) {
+          color = 'red';
+        } else if (taskData[i].completionMarginInDays > 0) {
+          color = 'green';
+        } else {
+          color = 'orange';
+        }
+      } else {
+        color = 'lightgrey';
+      }
     }
     dotString += `Node${
       reverseMapSortedIndices[i]
