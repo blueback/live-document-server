@@ -166,22 +166,44 @@ function createTaskFlowGraph2(taskData) {
   });
 }
 
+function taskComparator(data, a, b) {
+  const aFinished = (data[a].remainingAggregateEstimateHasAssumptions == 0) &&
+    (data[a].remainingAggregateEstimate == 0);
+  const bFinished = (data[b].remainingAggregateEstimateHasAssumptions == 0) &&
+    (data[b].remainingAggregateEstimate == 0);
+  if (aFinished && bFinished) {
+    if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
+      return - (data[a].completionMarginInDays - data[b].completionMarginInDays);
+    } else if ("completionMarginInDays" in data[a]) {
+      return - (data[a].completionMarginInDays - (-365));
+    } else if ("completionMarginInDays" in data[b]) {
+      return - ((-365) - data[b].completionMarginInDays);
+    } else {
+      return 0;
+    }
+  } else if (aFinished) {
+    return (365) - data[b].completionMarginInDays;
+  } else if (bFinished) {
+    return data[a].completionMarginInDays - (365);
+  } else {
+    if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
+      return data[a].completionMarginInDays - data[b].completionMarginInDays;
+    } else if ("completionMarginInDays" in data[a]) {
+      return data[a].completionMarginInDays - (-365);
+    } else if ("completionMarginInDays" in data[b]) {
+      return (-365) - data[b].completionMarginInDays;
+    } else {
+      return 0;
+    }
+  }
+}
+
 function createTaskFlowGraph3(taskData) {
   var sortedIndices = [];
   for (let i = 0; i < taskData.length - 1; i++) {
     sortedIndices.push(i);
   }
-  sortedIndices.sort((a, b) => {
-    if ("completionMarginInDays" in taskData[a] && "completionMarginInDays" in taskData[b]) {
-      return taskData[a].completionMarginInDays - taskData[b].completionMarginInDays;
-    } else if ("completionMarginInDays" in taskData[a]) {
-      return taskData[a].completionMarginInDays;
-    } else if ("completionMarginInDays" in taskData[b]) {
-      return taskData[b].completionMarginInDays;
-    } else {
-      return 0;
-    }
-  });
+  sortedIndices.sort((a, b) => taskComparator(taskData, a, b));
   sortedIndices.push(taskData.length - 1);
 
   var reverseMapSortedIndices = [];
@@ -676,37 +698,7 @@ function fillTaskDataAndDecorate(data) {
   for (let i = 0; i < data.length - 1; i++) {
     sortedIndices.push(i);
   }
-  sortedIndices.sort((a, b) => {
-    const aFinished = (data[a].remainingAggregateEstimateHasAssumptions == 0) &&
-      (data[a].remainingAggregateEstimate == 0);
-    const bFinished = (data[b].remainingAggregateEstimateHasAssumptions == 0) &&
-      (data[b].remainingAggregateEstimate == 0);
-    if (aFinished && bFinished) {
-      if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
-        return - (data[a].completionMarginInDays - data[b].completionMarginInDays);
-      } else if ("completionMarginInDays" in data[a]) {
-        return - (data[a].completionMarginInDays - (-365));
-      } else if ("completionMarginInDays" in data[b]) {
-        return - ((-365) - data[b].completionMarginInDays);
-      } else {
-        return 0;
-      }
-    } else if (aFinished) {
-      return (365) - data[b].completionMarginInDays;
-    } else if (bFinished) {
-      return data[a].completionMarginInDays - (365);
-    } else {
-      if ("completionMarginInDays" in data[a] && "completionMarginInDays" in data[b]) {
-        return data[a].completionMarginInDays - data[b].completionMarginInDays;
-      } else if ("completionMarginInDays" in data[a]) {
-        return data[a].completionMarginInDays - (-365);
-      } else if ("completionMarginInDays" in data[b]) {
-        return (-365) - data[b].completionMarginInDays;
-      } else {
-        return 0;
-      }
-    }
-  });
+  sortedIndices.sort((a, b) => taskComparator(data, a, b));
   sortedIndices.push(data.length - 1);
 
   var reverseMapSortedIndices = [];
