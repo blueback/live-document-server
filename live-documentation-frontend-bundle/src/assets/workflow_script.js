@@ -664,6 +664,21 @@ function setTotalWorkDeadline(taskData) {
   }
 }
 
+function getDayFromDate(date) {
+  const d1 = `${date.year}-${date.month}-${date.date}`; // format: YYYY-MM-DD
+  const d2 = new Date(d1); 
+  const days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ];
+  return days[d2.getDay()];
+}
+
 function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
@@ -765,6 +780,7 @@ function fillTaskDataAndDecorate(data) {
         cellTaskDeadline.textContent = printDeadlineDate(item.deadline);
         cellTaskDeadline.setAttribute("align", "center");
       }
+      cellTaskDeadline.setAttribute("title", getDayFromDate(item.deadline));
     } else {
       cellTaskDeadline.style.backgroundColor = 'pink';
     }
@@ -840,9 +856,11 @@ function fillTaskDataAndDecorate(data) {
       if ("remainingAggregateEstimateHasAssumptions" in item && item.remainingAggregateEstimateHasAssumptions == 1) {
         cellExpectedCompletionDate.textContent = `${printDeadlineDate(item.expectedCompletionDate)} (assumed)`;
         cellExpectedCompletionDate.style.backgroundColor = 'skyblue';
+        cellExpectedCompletionDate.setAttribute("title", getDayFromDate(item.expectedCompletionDate));
       } else {
         if (!isFinished) {
           cellExpectedCompletionDate.textContent = printDeadlineDate(item.expectedCompletionDate);
+          cellExpectedCompletionDate.setAttribute("title", getDayFromDate(item.expectedCompletionDate));
         }
       }
     }
