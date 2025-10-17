@@ -803,12 +803,19 @@ function fillTaskDataAndDecorate(data) {
     cellTaskNumber.appendChild(preTaskNumber);
     row.appendChild(cellTaskNumber);
   
+    const isFinished = (item.remainingAggregateEstimateHasAssumptions == 0) &&
+      (item.remainingAggregateEstimate == 0);
+
     const cellTaskDeadline = document.createElement('td');
     if ('deadline' in item) {
       if ('deadlineSetFromParent' in item && item.deadlineSetFromParent == 1) {
         cellTaskDeadline.textContent = `${printDeadlineDate(item.deadline)}\n(assumed)`;
         cellTaskDeadline.setAttribute("align", "center");
-        cellTaskDeadline.style.backgroundColor = '#FFF4F2'; // very light pink
+        if (isFinished) {
+          cellTaskDeadline.style.backgroundColor = 'lightgreen';
+        } else {
+          cellTaskDeadline.style.backgroundColor = '#FFF4F2'; // very light pink
+        }
         // cellTaskDeadline.style.backgroundColor = '#FFB6C1'; pale pink
       } else {
         cellTaskDeadline.textContent = printDeadlineDate(item.deadline);
@@ -816,7 +823,11 @@ function fillTaskDataAndDecorate(data) {
       }
       cellTaskDeadline.setAttribute("title", getDayFromDate(item.deadline));
     } else {
-      cellTaskDeadline.style.backgroundColor = 'pink';
+      if (isFinished) {
+        cellTaskDeadline.style.backgroundColor = 'lightgreen';
+      } else {
+        cellTaskDeadline.style.backgroundColor = 'pink';
+      }
     }
     row.appendChild(cellTaskDeadline);
   
@@ -881,9 +892,6 @@ function fillTaskDataAndDecorate(data) {
       cellTaskRemainingAggrEstimate.setAttribute("align", "center");
       row.appendChild(cellTaskRemainingAggrEstimate);
     }
-
-    const isFinished = (item.remainingAggregateEstimateHasAssumptions == 0) &&
-      (item.remainingAggregateEstimate == 0);
 
     const cellExpectedCompletionDate = document.createElement('td');
     if ("expectedCompletionDate" in item) {
