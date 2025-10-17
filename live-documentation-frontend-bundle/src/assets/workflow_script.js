@@ -300,15 +300,16 @@ function createTaskFlowGraph3(taskData) {
         const nodeId = parseInt(title.textContent.slice(4));
         if ("description" in taskData[sortedIndices[nodeId]]) {
           title.textContent =
-            "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
-            "# " + `task number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n# " +
+            "# " + `Task ID : ${sortedIndices[nodeId]}` + "\n" +
+            "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
+            "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
             taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
             taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
         } else {
-          title.textContent = `${taskData[sortedIndices[nodeId]].descriptions}`;
           title.textContent =
             "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
-            "# " + `task number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n# " +
+            "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
+            "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
             taskData[sortedIndices[nodeId]].Title + "\n";
         }
         //title.textContent = `${nodeId}`;
@@ -589,7 +590,11 @@ function printDeadlineDate(deadline) {
     'Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug',
     'Sept', 'Oct', 'Nov', 'Dec'
   ];
-  return `${deadline.date} ${months[deadline.month - 1]} ${deadline.year}`;
+  if (deadline) {
+    return `${deadline.date} ${months[deadline.month - 1]} ${deadline.year}`;
+  } else {
+    return "Missing Deadline";
+  }
 }
 
 function calculateDaysBetweenDates(unformatted_date1, unformatted_date2) {
