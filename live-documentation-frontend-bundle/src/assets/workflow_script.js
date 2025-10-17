@@ -298,18 +298,18 @@ function createTaskFlowGraph3(taskData) {
         // Add content
         const title = node.querySelector('title');
         const nodeId = parseInt(title.textContent.slice(4));
-        if ("description" in taskData[nodeId]) {
+        if ("description" in taskData[sortedIndices[nodeId]]) {
           title.textContent =
             "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
-            "# " + `task number : ${taskData[nodeId].taskNumber}` + "\n# " +
-            taskData[nodeId].Title + "\n\n\"\"\"\n" +
-            taskData[nodeId].description.join("\n") + "\n\"\"\"";
+            "# " + `task number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n# " +
+            taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
+            taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
         } else {
-          title.textContent = `${taskData[nodeId].descriptions}`;
+          title.textContent = `${taskData[sortedIndices[nodeId]].descriptions}`;
           title.textContent =
             "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
-            "# " + `task number : ${taskData[nodeId].taskNumber}` + "\n# " +
-            taskData[nodeId].Title + "\n";
+            "# " + `task number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n# " +
+            taskData[sortedIndices[nodeId]].Title + "\n";
         }
         //title.textContent = `${nodeId}`;
 
