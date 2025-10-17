@@ -298,19 +298,23 @@ function createTaskFlowGraph3(taskData) {
         // Add content
         const title = node.querySelector('title');
         const nodeId = parseInt(title.textContent.slice(4));
-        if ("description" in taskData[sortedIndices[nodeId]]) {
-          title.textContent =
-            "# " + `Task ID : ${sortedIndices[nodeId]}` + "\n" +
-            "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
-            "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
-            taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
-            taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
-        } else {
-          title.textContent =
-            "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
-            "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
-            "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
-            taskData[sortedIndices[nodeId]].Title + "\n";
+        //console.log(`taskData[sortedIndices[${nodeId}]]`);
+        //console.log(`${title.textContent}`);
+        if (!Number.isNaN(nodeId)) {
+          if ("description" in taskData[sortedIndices[nodeId]]) {
+            title.textContent =
+              "# " + `Task ID : ${sortedIndices[nodeId]}` + "\n" +
+              "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
+              "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
+              taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
+              taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
+          } else {
+            title.textContent =
+              "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
+              "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
+              "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
+              taskData[sortedIndices[nodeId]].Title + "\n";
+          }
         }
         //title.textContent = `${nodeId}`;
 
