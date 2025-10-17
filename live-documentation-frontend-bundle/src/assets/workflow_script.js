@@ -17,6 +17,8 @@ function createUnderCode(content, lang) {
   return pre;
 }
 
+// Old graph generation functions {
+
 function createTaskFlowGraph(taskData) {
   // Your graph data and configuration code (same as above)
   const adjacencyList = {
@@ -166,6 +168,8 @@ function createTaskFlowGraph2(taskData) {
   });
 }
 
+// }
+
 function taskComparator(data, a, b) {
   const aFinished = (data[a].remainingAggregateEstimateHasAssumptions == 0) &&
     (data[a].remainingAggregateEstimate == 0);
@@ -291,6 +295,24 @@ function createTaskFlowGraph3(taskData) {
       // Add hover effect to nodes
       svg.querySelectorAll('g.node').forEach(function(node) {
 
+        // Add content
+        const title = node.querySelector('title');
+        const nodeId = parseInt(title.textContent.slice(4));
+        if ("description" in taskData[nodeId]) {
+          title.textContent =
+            "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
+            "# " + `task number : ${taskData[nodeId].taskNumber}` + "\n# " +
+            taskData[nodeId].Title + "\n\n\"\"\"\n" +
+            taskData[nodeId].description.join("\n") + "\n\"\"\"";
+        } else {
+          title.textContent = `${taskData[nodeId].descriptions}`;
+          title.textContent =
+            "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
+            "# " + `task number : ${taskData[nodeId].taskNumber}` + "\n# " +
+            taskData[nodeId].Title + "\n";
+        }
+        //title.textContent = `${nodeId}`;
+
         // Find the actual shape (polygon, ellipse, etc.)
         const shape = node.querySelector('polygon, ellipse, circle');
 
@@ -313,6 +335,8 @@ function createTaskFlowGraph3(taskData) {
       console.error(error);
     });
 }
+
+// Checks to ensure estimates are present {
 
 function checkDependenciesHaveTotalBaseEstimate(taskData, i, visited) {
   if (visited[i] != 0) {
@@ -389,6 +413,10 @@ function checkAssumptionsOnEstimates(taskData) {
       (checkDependenciesHaveRemainingBaseEstimate(taskData, i, visited) == 0);
   }
 }
+
+// }
+
+// Computes aggregate estimates from base estimates {
 
 function computeTotalAggregateEstimate(taskData, i, visited) {
   if (visited[i] != 0) {
@@ -481,6 +509,8 @@ function computeRemainingAggregateEstimates(taskData) {
       computeRemainingAggregateEstimate(taskData, i, visited);
   }
 }
+
+// }
 
 function addTotalWork(data) {
   var dependency_counts = []
@@ -599,6 +629,8 @@ function computeCompletionMarginInDays(data) {
   }
 }
 
+// Automatically fill some missing deadlines {
+
 function setSubtaskDeadlinesHelper(taskData, i, visited) {
   if (visited[i] != 0) {
     return;
@@ -663,6 +695,8 @@ function setTotalWorkDeadline(taskData) {
     }
   }
 }
+
+// }
 
 function getDayFromDate(date) {
   const d1 = `${date.year}-${date.month}-${date.date}`; // format: YYYY-MM-DD
