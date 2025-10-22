@@ -281,7 +281,8 @@ function createTaskFlowGraph3(taskData) {
 
     var color = "lightgrey";
     if (isFinished) {
-      color = '\"#90EE90\"';
+      //color = '\"#90EE90\"';
+      color = 'lightyellow';
     } else {
       if ("completionMarginInDays" in taskData[i]) {
         if (taskData[i].completionMarginInDays < 0) {
