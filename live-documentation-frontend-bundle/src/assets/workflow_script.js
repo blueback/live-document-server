@@ -202,13 +202,19 @@ function taskComparator(data, a, b) {
   }
 }
 
-function createTaskFlowGraph3(taskData) {
+function getSortedIndices(taskData) {
   var sortedIndices = [];
   for (let i = 0; i < taskData.length - 1; i++) {
     sortedIndices.push(i);
   }
   sortedIndices.sort((a, b) => taskComparator(taskData, a, b));
   sortedIndices.push(taskData.length - 1);
+  
+  return sortedIndices;
+}
+
+function getReverseMapSortedIndices(taskData) {
+  const sortedIndices = getSortedIndices(taskData);
 
   var reverseMapSortedIndices = [];
   for (let i = 0; i < taskData.length - 1; i++) {
@@ -218,6 +224,52 @@ function createTaskFlowGraph3(taskData) {
     reverseMapSortedIndices[sortedIndices[i]] = i;
   }
   
+  return reverseMapSortedIndices;
+}
+
+function getTextHoverContent(taskData, nodeId) {
+  const sortedIndices = getSortedIndices(taskData);
+  const reverseMapSortedIndices = getReverseMapSortedIndices(taskData);
+
+  const isFinished = (taskData[sortedIndices[nodeId]].remainingAggregateEstimateHasAssumptions == 0) &&
+    (taskData[sortedIndices[nodeId]].remainingAggregateEstimate == 0);
+
+  var titleTextContent = "";
+  if ("description" in taskData[sortedIndices[nodeId]]) {
+    titleTextContent +=
+      "# " + `Task ID : ${sortedIndices[nodeId]}` + "\n" +
+      "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
+      "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
+      taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
+      taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
+  } else {
+   titleTextContent += 
+      "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
+      "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
+      "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
+      taskData[sortedIndices[nodeId]].Title + "\n";
+  }
+
+  if (isFinished) {
+    titleTextContent += "\n# Completion Margin : " + `${-taskData[sortedIndices[nodeId]].completionMarginInDays} (completed)`;
+  } else {
+    if ("completionMarginInDays" in taskData[sortedIndices[nodeId]]) {
+      if (taskData[sortedIndices[nodeId]].completionMarginInDays < 0) {
+        titleTextContent += "\n# Completion Margin : " + `${taskData[sortedIndices[nodeId]].completionMarginInDays} (overdue)`;
+      } else if (taskData[sortedIndices[nodeId]].completionMarginInDays > 0) {
+        titleTextContent += "\n# Completion Margin : " + `${taskData[sortedIndices[nodeId]].completionMarginInDays} (early)`;
+      } else {
+        titleTextContent += "\n# Completion Margin : " + `${taskData[sortedIndices[nodeId]].completionMarginInDays}`;
+      }
+    }
+  }
+  return titleTextContent;
+}
+
+function createTaskFlowGraph3(taskData) {
+  const sortedIndices = getSortedIndices(taskData);
+  const reverseMapSortedIndices = getReverseMapSortedIndices(taskData);
+
   // DOT language string (your network definition)
   var dotString = `
     digraph G {
@@ -301,20 +353,7 @@ function createTaskFlowGraph3(taskData) {
         //console.log(`taskData[sortedIndices[${nodeId}]]`);
         //console.log(`${title.textContent}`);
         if (!Number.isNaN(nodeId)) {
-          if ("description" in taskData[sortedIndices[nodeId]]) {
-            title.textContent =
-              "# " + `Task ID : ${sortedIndices[nodeId]}` + "\n" +
-              "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
-              "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
-              taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
-              taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
-          } else {
-            title.textContent =
-              "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
-              "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
-              "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
-              taskData[sortedIndices[nodeId]].Title + "\n";
-          }
+          title.textContent = getTextHoverContent(taskData, nodeId);
         }
         //title.textContent = `${nodeId}`;
 
