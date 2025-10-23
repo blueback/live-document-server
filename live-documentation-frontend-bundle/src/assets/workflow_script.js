@@ -251,15 +251,23 @@ function getTextHoverContent(taskData, nodeId) {
   }
 
   if (isFinished) {
-    titleTextContent += "\n# Completion Margin : " + `${-taskData[sortedIndices[nodeId]].completionMarginInDays} (completed)`;
+    titleTextContent += "\n# Completion Margin : "
+      + `${-taskData[sortedIndices[nodeId]].completionMarginInDays}`
+      + `(${-taskData[sortedIndices[nodeId]].completionMarginInBusinessDays}) (completed)`;
   } else {
     if ("completionMarginInDays" in taskData[sortedIndices[nodeId]]) {
       if (taskData[sortedIndices[nodeId]].completionMarginInDays < 0) {
-        titleTextContent += "\n# Completion Margin : " + `${taskData[sortedIndices[nodeId]].completionMarginInDays} (overdue)`;
+        titleTextContent += "\n# Completion Margin : "
+          + `${taskData[sortedIndices[nodeId]].completionMarginInDays}`
+          + `(${taskData[sortedIndices[nodeId]].completionMarginInBusinessDays}) (overdue)`;
       } else if (taskData[sortedIndices[nodeId]].completionMarginInDays > 0) {
-        titleTextContent += "\n# Completion Margin : " + `${taskData[sortedIndices[nodeId]].completionMarginInDays} (early)`;
+        titleTextContent += "\n# Completion Margin : "
+          + `${taskData[sortedIndices[nodeId]].completionMarginInDays}`
+          + `(${taskData[sortedIndices[nodeId]].completionMarginInBusinessDays}) (early)`;
       } else {
-        titleTextContent += "\n# Completion Margin : " + `${taskData[sortedIndices[nodeId]].completionMarginInDays}`;
+        titleTextContent += "\n# Completion Margin : "
+          + `${taskData[sortedIndices[nodeId]].completionMarginInDays}`
+          + `(${taskData[sortedIndices[nodeId]].completionMarginInBusinessDays})`;
       }
     }
   }
@@ -641,7 +649,37 @@ function printDeadlineDate(deadline) {
   }
 }
 
-function calculateDaysBetweenDates(unformatted_date1, unformatted_date2) {
+function calculateBusinessDaysBetweenDates(d1, d2) {
+  var d1a = new Date(d1);
+  var d2a = new Date(d2);
+  var is_neg = 0;
+
+  if (d2 < d1) {
+    d1a = new Date(d2);
+    d2a = new Date(d1);
+    is_neg = 1;
+  }
+
+  const resultDate = new Date(d1a);
+  let daysAdded = 0;
+
+  while (resultDate < d2a) {
+    resultDate.setDate(resultDate.getDate() + 1);
+    
+    // Check if the current date is a weekend (Saturday or Sunday)
+    if (resultDate.getDay() !== 0 && resultDate.getDay() !== 6) {
+      daysAdded++;
+    }
+  }
+
+  if (is_neg) {
+    return -daysAdded;
+  } else {
+    return daysAdded;
+  }
+}
+
+function calculateDaysBetweenDates(unformatted_date1, unformatted_date2, is_business) {
   const date1 = `${unformatted_date1.year}-${unformatted_date1.month}-${unformatted_date1.date}`; // format: YYYY-MM-DD
   const date2 = `${unformatted_date2.year}-${unformatted_date2.month}-${unformatted_date2.date}`; // format: YYYY-MM-DD
 
@@ -654,26 +692,27 @@ function calculateDaysBetweenDates(unformatted_date1, unformatted_date2) {
       return 'Invalid date format';
   }
   
-  if (d2 < d1) {
-    console.warn(`Date of deadline is smaller than expected completion date`);
+  if (is_business) {
+    return calculateBusinessDaysBetweenDates(d1, d2);
+  } else {
+    // Get the difference in milliseconds
+    const timeDifference = d2 - d1;
+    
+    // Convert the difference from milliseconds to days (1000ms = 1 second, 60 seconds = 1 minute, 60 minutes = 1 hour, 24 hours = 1 day)
+    var dayDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    if (d2 < d1) {
+      dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    }
+    
+    return dayDifference;
   }
-
-  // Get the difference in milliseconds
-  const timeDifference = d2 - d1;
-  
-  // Convert the difference from milliseconds to days (1000ms = 1 second, 60 seconds = 1 minute, 60 minutes = 1 hour, 24 hours = 1 day)
-  var dayDifference = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-  if (d2 < d1) {
-    dayDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-  }
-  
-  return dayDifference;
 }
 
 function computeCompletionMarginInDays(data) {
   for (let i = 0; i < data.length; i++) {
     if ("expectedCompletionDate" in data[i] && "deadline" in data[i]) {
-      data[i].completionMarginInDays = calculateDaysBetweenDates(data[i].expectedCompletionDate, data[i].deadline);
+      data[i].completionMarginInDays = calculateDaysBetweenDates(data[i].expectedCompletionDate, data[i].deadline, 0);
+      data[i].completionMarginInBusinessDays = calculateDaysBetweenDates(data[i].expectedCompletionDate, data[i].deadline, 1);
     }
   }
 }
@@ -960,18 +999,22 @@ function fillTaskDataAndDecorate(data) {
   
     const cellCompletionMarginInDays = document.createElement('td');
     if (isFinished) {
-      cellCompletionMarginInDays.textContent = `${-item.completionMarginInDays} (completed)`;
+      cellCompletionMarginInDays.textContent = `${-item.completionMarginInDays}`
+        + `(${-item.completionMarginInBusinessDays}) (completed)`;
       row.style.backgroundColor = 'lightgreen';
     } else {
       if ("completionMarginInDays" in item) {
         if (item.completionMarginInDays < 0) {
-          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (overdue)`;
+          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays}`
+            + `(${item.completionMarginInBusinessDays}) (overdue)`;
           cellCompletionMarginInDays.style.backgroundColor = 'red';
         } else if (item.completionMarginInDays > 0) {
-          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays} (early)`;
+          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays}`
+            + `(${item.completionMarginInBusinessDays}) (early)`;
           cellCompletionMarginInDays.style.backgroundColor = 'green';
         } else {
-          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays}`;
+          cellCompletionMarginInDays.textContent = `${item.completionMarginInDays}`
+            + `(${item.completionMarginInBusinessDays})`;
           cellCompletionMarginInDays.style.backgroundColor = 'orange';
         }
       } else {
