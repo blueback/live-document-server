@@ -271,6 +271,15 @@ function getTextHoverContent(taskData, nodeId) {
       }
     }
   }
+
+  if ("remainingAggregateEstimateHasAssumptions" in taskData[sortedIndices[nodeId]] &&
+    taskData[sortedIndices[nodeId]].remainingAggregateEstimateHasAssumptions == 1) {
+    titleTextContent += "\n# Remaining Aggregate Effort Estimate : "
+      + `${taskData[sortedIndices[nodeId]].remainingAggregateEstimate} days (assumed)`;
+  } else {
+    titleTextContent += "\n# Remaining Aggregate Effort Estimate : "
+      + `${taskData[sortedIndices[nodeId]].remainingAggregateEstimate} days`;
+  }
   return titleTextContent;
 }
 
