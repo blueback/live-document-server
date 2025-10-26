@@ -362,6 +362,17 @@ function createTaskFlowGraph3(taskData) {
       const svg = svgElement;
       document.getElementById("taskGraph").appendChild(svg);
 
+      svg.querySelectorAll('g.node').forEach(function(node) {
+        // Add content
+        const title = node.querySelector('title');
+        const nodeId = parseInt(title.textContent.slice(4));
+        if (!Number.isNaN(nodeId)) {
+          node.dataset.originalSortedNodeId = nodeId;
+        } else {
+          node.dataset.originalSortedNodeId = -1;
+        }
+      });
+
       // Add hover effect to nodes
       svg.querySelectorAll('g.node').forEach(function(node) {
 
@@ -381,14 +392,18 @@ function createTaskFlowGraph3(taskData) {
         if (!shape) return;
 
         // Save the original fill
-        const originalFill = shape.getAttribute('fill') || '#ffffff';
+        // const originalFill = shape.getAttribute('fill') || '#ffffff';
+        const originalStroke = shape.getAttribute('stroke') || '';
+        const originalStrokeWidth = shape.getAttribute('stroke-width') || '';
 
         // Find all edges in the graph
         const edges = svg.querySelectorAll('g.edge');
 
         node.addEventListener('mouseenter', function() {
           // node.style.fill = '#f00'; // Change color on hover
-          shape.setAttribute('fill', 'skyblue');
+          // shape.setAttribute('fill', 'skyblue');
+          shape.setAttribute('stroke', 'black');
+          shape.setAttribute('stroke-width', '8');
 
           // Change the color of the outgoing edges
           edges.forEach(function(edge) {
@@ -425,20 +440,47 @@ function createTaskFlowGraph3(taskData) {
 
               // Apply hover styles
               if (path) {
-                path.setAttribute('stroke', 'orange');
+                path.setAttribute('stroke', 'black');
                 path.setAttribute('stroke-width', '4');
               }
               if (arrow) {
-                arrow.setAttribute('stroke', 'orange');
-                arrow.setAttribute('fill', 'orange');
+                arrow.setAttribute('stroke', 'black');
+                arrow.setAttribute('fill', 'black');
                 arrow.setAttribute('stroke-width', '4');
+              }
+
+              // Highlight destination node
+              const destNode = Array.from(svg.querySelectorAll('g.node')).find(n => {
+                if (!n) return false;
+                if (!n.dataset) return false;
+                if (Number.isNaN(n.dataset.originalSortedNodeId)) return false;
+                const mySortedId = parseInt(n.dataset.originalSortedNodeId);
+                if (Number.isNaN(mySortedId)) return false;
+                if (mySortedId !== targetId) return false;
+                return true;
+              });
+
+              //console.log(`${destNode}`);
+              if (destNode) {
+                const destShape = destNode.querySelector('polygon, ellipse, circle');
+                if (destShape) {
+                  // Save original color if not already saved
+                  if (!destShape.dataset.originalStroke) {
+                    destShape.dataset.originalStroke = destShape.getAttribute('stroke') || '';
+                    destShape.dataset.originalStrokeWidth = destShape.getAttribute('stroke-width') || '';
+                  }
+                  destShape.setAttribute('stroke', 'black');
+                  destShape.setAttribute('stroke-width', '8');
+                }
               }
             }
           });
         });
         node.addEventListener('mouseleave', function() {
           // node.style.fill = ''; // Reset color when not hovered
-          shape.setAttribute('fill', originalFill);
+          // shape.setAttribute('fill', originalFill);
+          shape.setAttribute('stroke', originalStroke);
+          shape.setAttribute('stroke-width', originalStrokeWidth);
 
           // Reset the color of the outgoing edges
           edges.forEach(function(edge) {
@@ -469,6 +511,25 @@ function createTaskFlowGraph3(taskData) {
                 arrow.setAttribute('stroke', arrow.dataset.originalStroke);
                 arrow.setAttribute('fill', arrow.dataset.originalFill);
                 arrow.setAttribute('stroke-width', arrow.dataset.originalStrokeWidth);
+              }
+
+              // Reset destination node color
+              const destNode = Array.from(svg.querySelectorAll('g.node')).find(n => {
+                if (!n) return false;
+                if (!n.dataset) return false;
+                if (Number.isNaN(n.dataset.originalSortedNodeId)) return false;
+                const mySortedId = parseInt(n.dataset.originalSortedNodeId);
+                if (Number.isNaN(mySortedId)) return false;
+                if (mySortedId !== targetId) return false;
+                return true;
+              });
+
+              if (destNode) {
+                const destShape = destNode.querySelector('polygon, ellipse, circle');
+                if (destShape && destShape.dataset.originalStroke) {
+                  destShape.setAttribute('stroke', destShape.dataset.originalStroke);
+                  destShape.setAttribute('stroke-width', destShape.dataset.originalStrokeWidth);
+                }
               }
             }
           });
