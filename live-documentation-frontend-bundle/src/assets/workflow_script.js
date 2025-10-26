@@ -383,13 +383,71 @@ function createTaskFlowGraph3(taskData) {
         // Save the original fill
         const originalFill = shape.getAttribute('fill') || '#ffffff';
 
+        // Find all edges in the graph
+        const edges = svg.querySelectorAll('g.edge');
+
         node.addEventListener('mouseenter', function() {
           // node.style.fill = '#f00'; // Change color on hover
           shape.setAttribute('fill', 'skyblue');
+
+          // Change the color of the outgoing edges
+          edges.forEach(function(edge) {
+            const edgeTitle = edge.querySelector('title');
+            if (edgeTitle && edgeTitle.textContent.includes(`Node${nodeId}->`)) {
+              //console.log(`edgeTitle=${edgeTitle.textContent}`);
+
+              // Find the actual line (path) and arrowhead (polygon)
+              const path = edge.querySelector('path');
+              const arrow = edge.querySelector('polygon');
+
+              // Save original styles so we can restore them later
+              if (path && !path.dataset.originalStroke) {
+                path.dataset.originalStroke = path.getAttribute('stroke') || '';
+                path.dataset.originalStrokeWidth = path.getAttribute('stroke-width') || '';
+              }
+              if (arrow && !arrow.dataset.originalStroke) {
+                arrow.dataset.originalStroke = arrow.getAttribute('stroke') || '';
+                arrow.dataset.originalFill = arrow.getAttribute('fill') || '';
+                arrow.dataset.originalStrokeWidth = arrow.getAttribute('stroke-width') || '';
+              }
+
+              // Apply hover styles
+              if (path) {
+                path.setAttribute('stroke', 'orange');
+                path.setAttribute('stroke-width', '4');
+              }
+              if (arrow) {
+                arrow.setAttribute('stroke', 'orange');
+                arrow.setAttribute('fill', 'orange');
+                arrow.setAttribute('stroke-width', '4');
+              }
+            }
+          });
         });
         node.addEventListener('mouseleave', function() {
           // node.style.fill = ''; // Reset color when not hovered
           shape.setAttribute('fill', originalFill);
+
+          // Reset the color of the outgoing edges
+          edges.forEach(function(edge) {
+            const edgeTitle = edge.querySelector('title');
+            if (edgeTitle && edgeTitle.textContent.includes(`Node${nodeId}->`)) {
+              // Reset the edge color
+              const path = edge.querySelector('path');
+              const arrow = edge.querySelector('polygon');
+
+              // Restore original stroke/fill
+              if (path && path.dataset.originalStroke) {
+                path.setAttribute('stroke', path.dataset.originalStroke);
+                path.setAttribute('stroke-width', path.dataset.originalStrokeWidth);
+              }
+              if (arrow && arrow.dataset.originalStroke) {
+                arrow.setAttribute('stroke', arrow.dataset.originalStroke);
+                arrow.setAttribute('fill', arrow.dataset.originalFill);
+                arrow.setAttribute('stroke-width', arrow.dataset.originalStrokeWidth);
+              }
+            }
+          });
         });
       });
     })
