@@ -393,7 +393,19 @@ function createTaskFlowGraph3(taskData) {
           // Change the color of the outgoing edges
           edges.forEach(function(edge) {
             const edgeTitle = edge.querySelector('title');
-            if (edgeTitle && edgeTitle.textContent.includes(`Node${nodeId}->`)) {
+
+            if (!edgeTitle) return;
+
+            const titleText = edgeTitle.textContent.trim();
+
+            // Expect "NodeX->NodeY"
+            const match = titleText.match(/^Node(\d+)->Node(\d+)$/);
+            if (!match) return;
+
+            const sourceId = parseInt(match[1]);
+            const targetId = parseInt(match[2]);
+
+            if (sourceId === nodeId) {
               //console.log(`edgeTitle=${edgeTitle.textContent}`);
 
               // Find the actual line (path) and arrowhead (polygon)
@@ -431,7 +443,19 @@ function createTaskFlowGraph3(taskData) {
           // Reset the color of the outgoing edges
           edges.forEach(function(edge) {
             const edgeTitle = edge.querySelector('title');
-            if (edgeTitle && edgeTitle.textContent.includes(`Node${nodeId}->`)) {
+
+            if (!edgeTitle) return;
+
+            const titleText = edgeTitle.textContent.trim();
+
+            // Expect "NodeX->NodeY"
+            const match = titleText.match(/^Node(\d+)->Node(\d+)$/);
+            if (!match) return;
+
+            const sourceId = parseInt(match[1]);
+            const targetId = parseInt(match[2]);
+
+            if (sourceId === nodeId) {
               // Reset the edge color
               const path = edge.querySelector('path');
               const arrow = edge.querySelector('polygon');
