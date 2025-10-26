@@ -477,10 +477,12 @@ function createTaskFlowGraph3(taskData) {
           });
         });
         node.addEventListener('mouseleave', function() {
-          // node.style.fill = ''; // Reset color when not hovered
-          // shape.setAttribute('fill', originalFill);
-          shape.setAttribute('stroke', originalStroke);
-          shape.setAttribute('stroke-width', originalStrokeWidth);
+          if (!node.dataset || !node.dataset.selected || node.dataset.selected === "0") {
+            // node.style.fill = ''; // Reset color when not hovered
+            // shape.setAttribute('fill', originalFill);
+            shape.setAttribute('stroke', originalStroke);
+            shape.setAttribute('stroke-width', originalStrokeWidth);
+          }
 
           // Reset the color of the outgoing edges
           edges.forEach(function(edge) {
@@ -503,14 +505,16 @@ function createTaskFlowGraph3(taskData) {
               const arrow = edge.querySelector('polygon');
 
               // Restore original stroke/fill
-              if (path && path.dataset.originalStroke) {
-                path.setAttribute('stroke', path.dataset.originalStroke);
-                path.setAttribute('stroke-width', path.dataset.originalStrokeWidth);
-              }
-              if (arrow && arrow.dataset.originalStroke) {
-                arrow.setAttribute('stroke', arrow.dataset.originalStroke);
-                arrow.setAttribute('fill', arrow.dataset.originalFill);
-                arrow.setAttribute('stroke-width', arrow.dataset.originalStrokeWidth);
+              if (!node.dataset || !node.dataset.selected || node.dataset.selected === "0") {
+                if (path && path.dataset.originalStroke) {
+                  path.setAttribute('stroke', path.dataset.originalStroke);
+                  path.setAttribute('stroke-width', path.dataset.originalStrokeWidth);
+                }
+                if (arrow && arrow.dataset.originalStroke) {
+                  arrow.setAttribute('stroke', arrow.dataset.originalStroke);
+                  arrow.setAttribute('fill', arrow.dataset.originalFill);
+                  arrow.setAttribute('stroke-width', arrow.dataset.originalStrokeWidth);
+                }
               }
 
               // Reset destination node color
@@ -525,14 +529,23 @@ function createTaskFlowGraph3(taskData) {
               });
 
               if (destNode) {
-                const destShape = destNode.querySelector('polygon, ellipse, circle');
-                if (destShape && destShape.dataset.originalStroke) {
-                  destShape.setAttribute('stroke', destShape.dataset.originalStroke);
-                  destShape.setAttribute('stroke-width', destShape.dataset.originalStrokeWidth);
+                if (!destNode.dataset || !destNode.dataset.selected || destNode.dataset.selected === "0") {
+                  const destShape = destNode.querySelector('polygon, ellipse, circle');
+                  if (destShape && destShape.dataset.originalStroke) {
+                    destShape.setAttribute('stroke', destShape.dataset.originalStroke);
+                    destShape.setAttribute('stroke-width', destShape.dataset.originalStrokeWidth);
+                  }
                 }
               }
             }
           });
+        });
+        node.addEventListener('click', function() {
+          if (!node.dataset || !node.dataset.selected || node.dataset.selected === "0") {
+            node.dataset.selected = "1";
+          } else {
+            node.dataset.selected = "0";
+          }
         });
       });
     })
