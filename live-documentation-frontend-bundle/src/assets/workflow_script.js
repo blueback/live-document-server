@@ -237,14 +237,14 @@ function getTextHoverContent(taskData, nodeId) {
   var titleTextContent = "";
   if ("description" in taskData[sortedIndices[nodeId]]) {
     titleTextContent +=
-      "# " + `Task ID : ${sortedIndices[nodeId]}` + "\n" +
+      "# " + `Task ID : ${taskData[sortedIndices[nodeId]].originalIndex}` + "\n" +
       "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
       "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
       taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
       taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
   } else {
    titleTextContent += 
-      "# " + `task id : ${sortedIndices[nodeId]}` + "\n" +
+      "# " + `task id : ${taskData[sortedIndices[nodeId]].originalIndex}` + "\n" +
       "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
       "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
       taskData[sortedIndices[nodeId]].Title + "\n";
@@ -966,6 +966,43 @@ function getDayFromDate(date) {
   return days[d2.getDay()];
 }
 
+function clearTaskData(data) {
+  var data2 = [];
+      console.log(data2);
+
+  var i = 0;
+  var j = 0;
+  var newIndices = [];
+  data.forEach(item => {
+    if ("deleted" in item && item.deleted == 1) {
+      // dont keep
+      newIndices.push(-1);
+    } else {
+      var itemCopy = JSON.parse(JSON.stringify(item));
+      itemCopy.originalIndex = j;
+      data2.push(itemCopy);
+      newIndices.push(i);
+      i++;
+    }
+    j++;
+  });
+
+  data2.forEach(item => {
+    if ("dependencies" in item) {
+      var newDependencies = [];
+      item.dependencies.forEach(dependency => {
+        if (newIndices[dependency] == -1) {
+          // skip this dependency
+        } else {
+          newDependencies.push(newIndices[dependency]);
+        }
+      });
+      item.dependencies = newDependencies;
+    }
+  });
+  return data2;
+}
+
 function fillTaskDataAndDecorate(data) {
   // Get the table body element
   const tableBody = document.getElementById('taskTable').getElementsByTagName('tbody')[0];
@@ -1003,20 +1040,8 @@ function fillTaskDataAndDecorate(data) {
   computeExpectedCompletionDates(data);
   computeCompletionMarginInDays(data);
 
-  var sortedIndices = [];
-  for (let i = 0; i < data.length - 1; i++) {
-    sortedIndices.push(i);
-  }
-  sortedIndices.sort((a, b) => taskComparator(data, a, b));
-  sortedIndices.push(data.length - 1);
-
-  var reverseMapSortedIndices = [];
-  for (let i = 0; i < data.length - 1; i++) {
-    reverseMapSortedIndices.push(0);
-  }
-  for (let i = 0; i < sortedIndices.length - 1; i++) {
-    reverseMapSortedIndices[sortedIndices[i]] = i;
-  }
+  const sortedIndices = getSortedIndices(data);
+  const reverseMapSortedIndices = getReverseMapSortedIndices(data);
   
   // Loop through the data and create rows
   for (let i = 0; i < sortedIndices.length; i++) {
@@ -1026,7 +1051,7 @@ function fillTaskDataAndDecorate(data) {
   
     const cellTaskSerialNumber = document.createElement('td');
     const preTaskSerialNumber = createUnderCode(i, "language-verilog");
-    cellTaskSerialNumber.setAttribute("title", `task id ${sortedIndices[i]}: ${item.Title}`);
+    cellTaskSerialNumber.setAttribute("title", `task id ${item.originalIndex}: ${item.Title}`);
     cellTaskSerialNumber.appendChild(preTaskSerialNumber);
     row.appendChild(cellTaskSerialNumber);
     
@@ -1035,16 +1060,16 @@ function fillTaskDataAndDecorate(data) {
     const taskTitle = document.createElement('details');
     const taskTitleSummary = document.createElement('summary');
     taskTitleSummary.textContent = item.taskType;
-    cellTaskType.setAttribute("title", `task id ${sortedIndices[i]}: ${item.Title}`);
+    cellTaskType.setAttribute("title", `task id ${item.originalIndex}: ${item.Title}`);
     if ("description" in item) {
       const preTaskTitle =
-          createUnderCode("# " + `task id:${sortedIndices[i]}` + "\n# " + item.Title + "\n\n\"\"\"\n" +
+          createUnderCode("# " + `task id:${item.originalIndex}` + "\n# " + item.Title + "\n\n\"\"\"\n" +
                               item.description.join("\n") + "\n\"\"\"",
                           "language-python");
       taskTitle.appendChild(preTaskTitle);
     } else {
       const preTaskTitle =
-          createUnderCode("# " + `task id:${sortedIndices[i]}` + "\n# " + item.Title, "language-python");
+          createUnderCode("# " + `task id:${item.originalIndex}` + "\n# " + item.Title, "language-python");
       taskTitle.appendChild(preTaskTitle);
     }
     taskTitle.appendChild(taskTitleSummary);
@@ -1275,9 +1300,9 @@ function fillTaskDataAndDecorate(data) {
   fetch("/workflow_data/taskData.json")
     .then(response => response.json())
     .then(data => {
-      // console.log(data);
-      fillTaskDataAndDecorate(data);
-      createTaskFlowGraph3(data);
+      var cleanData = clearTaskData(data);
+      fillTaskDataAndDecorate(cleanData);
+      createTaskFlowGraph3(cleanData);
     })
     .catch(error => console.error('Error fetching data:', error));
 
