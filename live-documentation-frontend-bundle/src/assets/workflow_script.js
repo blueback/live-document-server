@@ -234,21 +234,11 @@ function getTextHoverContent(taskData, nodeId) {
   const isFinished = (taskData[sortedIndices[nodeId]].remainingAggregateEstimateHasAssumptions == 0) &&
     (taskData[sortedIndices[nodeId]].remainingAggregateEstimate == 0);
 
-  var titleTextContent = "";
-  if ("description" in taskData[sortedIndices[nodeId]]) {
-    titleTextContent +=
-      "# " + `Task ID : ${taskData[sortedIndices[nodeId]].originalIndex}` + "\n" +
-      "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
-      "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
-      taskData[sortedIndices[nodeId]].Title + "\n\n\"\"\"\n" +
-      taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
-  } else {
-   titleTextContent += 
-      "# " + `task id : ${taskData[sortedIndices[nodeId]].originalIndex}` + "\n" +
-      "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
-      "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
-      taskData[sortedIndices[nodeId]].Title + "\n";
-  }
+  var titleTextContent =
+    "# " + `Task ID : ${taskData[sortedIndices[nodeId]].originalIndex}` + "\n" +
+    "# " + `Task Number : ${taskData[sortedIndices[nodeId]].taskNumber}` + "\n" +
+    "# " + `Deadline : ${printDeadlineDate(taskData[sortedIndices[nodeId]].deadline)}` + "\n# " +
+    taskData[sortedIndices[nodeId]].Title + "\n";
 
   if (isFinished) {
     titleTextContent += "\n# Completion Margin : "
@@ -280,6 +270,12 @@ function getTextHoverContent(taskData, nodeId) {
     titleTextContent += "\n# Remaining Aggregate Effort Estimate : "
       + `${taskData[sortedIndices[nodeId]].remainingAggregateEstimate} days`;
   }
+
+  if ("description" in taskData[sortedIndices[nodeId]]) {
+    titleTextContent += "\n\"\"\"\n" +
+      taskData[sortedIndices[nodeId]].description.join("\n") + "\n\"\"\"";
+  }
+
   return titleTextContent;
 }
 
