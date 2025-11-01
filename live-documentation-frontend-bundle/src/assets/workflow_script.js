@@ -437,12 +437,12 @@ function createTaskFlowGraph3(taskData) {
               // Apply hover styles
               if (path) {
                 path.setAttribute('stroke', 'black');
-                path.setAttribute('stroke-width', '4');
+                path.setAttribute('stroke-width', '8');
               }
               if (arrow) {
                 arrow.setAttribute('stroke', 'black');
                 arrow.setAttribute('fill', 'black');
-                arrow.setAttribute('stroke-width', '4');
+                arrow.setAttribute('stroke-width', '8');
               }
 
               // Highlight destination node
